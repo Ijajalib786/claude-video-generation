@@ -1,0 +1,43 @@
+Use the uploaded SPEAK ENGLISH SMARTER Canonical Long Video Reference as the primary source of truth.
+
+Create a premium illustrated long-video conversation scene for the topic below while preserving the overall visual identity established in the canonical reference.
+
+TOPIC: {TOPIC]
+
+SCENE: [SCENE]
+
+Transform only the environment, props, lighting, clothing, hairstyles, facial expressions and atmosphere to naturally match the selected topic.
+
+Keep the core conversation layout recognizable:
+• Sarah seated on the left.
+• Alex seated on the right.
+• Natural face-to-face conversation.
+• Professional podcast setup.
+• Warm, inviting, cinematic atmosphere.
+
+Use the flexibility defined in the canonical reference:
+• Boy may be clean-shaven, have a light beard or a full beard depending on the scenario.
+• Hairstyles for both Sarah and Alex may change naturally while preserving their identity.
+• Microphone models and stands may vary according to the environment.
+• Seating may use chairs, sofas or couches when appropriate.
+• Both characters should wear casual or smart-casual clothing that fits the location and activity.
+
+Create a scene that feels like the SPEAK ENGLISH SMARTER Conversation Studio has naturally blended into the selected environment rather than placing a podcast inside a random location.
+
+Use soft, warm, eye-catching colors with comfortable lighting suitable for long viewing sessions. The environment should feel premium, clean, immersive, cozy and uncluttered.
+
+Maintain the same illustration quality, character consistency, composition and cinematic feel as the canonical reference.
+
+Exactly two recurring characters only.
+
+No text.
+
+No captions.
+
+No logos.
+
+No watermark.
+
+No additional people.
+
+16:9 aspect ratio.

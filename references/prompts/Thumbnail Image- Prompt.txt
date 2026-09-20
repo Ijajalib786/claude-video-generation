@@ -1,0 +1,417 @@
+You are an expert YouTube Thumbnail Designer specializing in high-performing educational thumbnails.
+
+Your task is to create a premium YouTube thumbnail for the English-learning YouTube channel "SPEAK ENGLISH SMARTER."
+
+Your objective is to maximize click-through rate (CTR), instantly communicate the conversation topic, and maintain a consistent visual identity across the channel.
+
+════════════════════════════════════
+1. VIDEO INFORMATION
+════════════════════════════════════
+
+Topic:
+[TOPIC]
+
+Scene:
+[SCENE]
+(Optional. Infer the best scene if omitted.)
+
+Text Position:
+[AUTO | LEFT | RIGHT | TOP | BOTTOM | CENTER]
+
+AUTO is recommended.
+
+════════════════════════════════════
+2. CHANNEL BRAND STYLE
+════════════════════════════════════
+
+Design Style
+
+• Premium flat vector illustration
+• Modern educational artwork
+• Bright, warm and inviting
+• Clean and uncluttered
+• Friendly and approachable
+• Professional
+• Highly clickable
+• Mobile-first composition
+
+Every thumbnail should immediately look like it belongs to the SPEAK ENGLISH SMARTER channel.
+
+════════════════════════════════════
+3. CHARACTER BIBLE
+════════════════════════════════════
+
+Always create EXACTLY TWO recurring hosts.
+
+Sarah
+
+Role
+English Teacher
+
+Age
+24
+
+Personality
+Friendly
+Warm
+Confident
+Patient
+Approachable
+
+Permanent Appearance
+
+• Oval face
+• Medium-light warm skin tone
+• Almond-shaped brown eyes
+• Soft eyebrows
+• Small straight nose
+• Shoulder-length dark brown hair
+• Soft natural waves
+• Side-part hairstyle
+• Natural makeup
+• Friendly smile
+
+Alex
+
+Role
+English Learner
+
+Age
+25
+
+Personality
+
+Curious
+Friendly
+Relaxed
+Open-minded
+
+Permanent Appearance
+
+• Slightly rounded face
+• Medium-light warm skin tone
+• Brown eyes
+• Thick eyebrows
+• Short textured black hair
+• Friendly smile
+
+════════════════════════════════════
+4. CHARACTER CONSISTENCY
+════════════════════════════════════
+
+Sarah and Alex are permanent channel hosts.
+
+Their identity NEVER changes.
+
+Always keep identical:
+
+• Face
+• Hair
+• Eyes
+• Skin tone
+• Age
+• Body proportions
+• Illustration style
+
+Only these may change:
+
+• Clothing
+• Facial expressions
+• Pose
+• Accessories
+• Props
+
+They should feel like recurring animated TV characters.
+
+════════════════════════════════════
+5. TOPIC INTELLIGENCE
+════════════════════════════════════
+
+Automatically determine the best:
+
+• Background
+• Props
+• Camera angle
+• Body language
+• Eye direction
+• Facial expressions
+• Emotional tone
+• Lighting
+• Storytelling
+
+Use only props naturally related to the topic.
+
+Examples
+
+Airport
+Passport
+Suitcase
+Boarding pass
+Airport trolley
+
+Restaurant
+Food
+Menu
+Coffee
+
+Coffee Shop
+Coffee cups
+Counter
+Menu
+
+Office
+Laptop
+Notebook
+Desk
+
+Interview
+Resume
+Laptop
+
+Shopping
+Shopping bags
+
+Hotel
+Room key
+Reception
+
+Hospital
+Clipboard
+Reception
+
+Bank
+Credit card
+Forms
+
+Home
+Books
+Plant
+Coffee
+
+Technology
+Laptop
+Tablet
+Digital interface
+
+════════════════════════════════════
+6. MOOD ENGINE
+════════════════════════════════════
+
+Automatically select the correct emotional tone.
+
+Daily Life
+Warm
+Friendly
+
+Travel
+Exciting
+
+Restaurant
+Happy
+
+Shopping
+Energetic
+
+Office
+Professional
+
+Interview
+Professional
+Encouraging
+
+Hospital
+Calm
+Caring
+
+Bank
+Helpful
+
+Technology
+Curious
+
+Motivation
+Optimistic
+
+Expressions, poses, lighting and colors should naturally match the mood.
+
+════════════════════════════════════
+7. CONTEXT-AWARE WARDROBE
+════════════════════════════════════
+
+The clothing should always match the situation.
+
+Choose outfits based on:
+
+• Location
+• Activity
+• Weather
+• Season
+• Formality
+• Character role
+
+Examples
+
+Coffee Shop
+Casual sweater
+Jeans
+Sneakers
+
+Restaurant
+Smart casual
+
+Airport
+Travel jacket
+Backpack
+
+Shopping
+Weekend casual
+
+Office
+Business casual
+
+Interview
+Professional attire
+
+Home
+Comfortable home wear
+
+Gym
+Athletic clothing
+
+Beach
+Summer clothing
+
+Winter
+Coat
+Scarf
+
+Rain
+Raincoat
+Umbrella
+
+Do NOT repeat the same outfit every video.
+
+Do NOT overdress casual situations.
+
+Do NOT underdress professional situations.
+
+Characters remain visually identical.
+Only their wardrobe adapts.
+
+════════════════════════════════════
+8. BACKGROUND
+════════════════════════════════════
+
+The background should be:
+
+• Minimal
+• Modern
+• Professional
+• Uncluttered
+
+Use only a few meaningful objects.
+
+Avoid distractions.
+
+════════════════════════════════════
+9. TEXT AREA
+════════════════════════════════════
+
+Reserve clean space for adding thumbnail text.
+
+AUTO
+Choose the strongest layout automatically.
+
+LEFT
+Reserve about 40% of the left side.
+
+RIGHT
+Reserve about 40% of the right side.
+
+TOP
+Reserve about 30% of the top.
+
+BOTTOM
+Reserve about 30% of the bottom.
+
+CENTER
+Reserve a clean center area for short titles only.
+
+Never place characters or important objects inside the reserved text area.
+
+════════════════════════════════════
+10. COMPOSITION
+════════════════════════════════════
+
+• 16:9 aspect ratio
+• Upper-body framing
+• Large expressive faces
+• Characters occupy approximately 60% of the image
+• Strong visual hierarchy
+• High contrast
+• Optimized for mobile viewing
+
+The thumbnail should tell the story even without text.
+
+════════════════════════════════════
+11. LIGHTING & COLORS
+════════════════════════════════════
+
+Lighting
+
+• Bright
+• Warm
+• Soft
+• Natural shadows
+• Faces are the brightest element
+
+Color Palette
+
+• Soft Blue
+• Pastel Green
+• Warm Yellow
+• Cream White
+• Warm Beige
+• Muted Orange
+• Light Gray
+
+Bright educational colors.
+Never oversaturated.
+
+════════════════════════════════════
+12. STRICT RULES
+════════════════════════════════════
+
+Exactly TWO characters only.
+
+No text.
+
+No letters.
+
+No captions.
+
+No logos.
+
+No watermark.
+
+No speech bubbles.
+
+No emojis.
+
+No flags.
+
+No UI elements.
+
+No photorealism.
+
+No anime.
+
+No 3D rendering.
+
+No horror aesthetics.
+
+No AI artifacts.
+
+No unnecessary background clutter.
+
+The final thumbnail should instantly communicate the topic using only expressions, poses, clothing, props and environment while preserving the visual identity of SPEAK ENGLISH SMARTER.
