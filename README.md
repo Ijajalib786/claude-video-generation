@@ -1,4 +1,4 @@
-# SPEAK ENGLISH SMARTER - Video Generation Pipeline
+# SPEAK ENGLISH SMARTER - This is Video Generation Pipeline
 
 An intelligent, incremental video generation pipeline for creating English learning content. Built with Claude AI and designed to teach agentic AI patterns.
 
