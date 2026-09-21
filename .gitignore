@@ -46,6 +46,7 @@ MANIFEST
 # Environment
 .env
 config/.env
+config/.env.example
 .env.local
 .env.*.local
 
