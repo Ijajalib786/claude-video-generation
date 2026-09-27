@@ -44,11 +44,18 @@ class SEOMetadata(BaseModel):
     description: str
     hashtags: list[str]
     tags: list[str]
+    thumbnail_text: str
 
     @validator("title")
     def validate_title_length(cls, v):
         if len(v) > 65:
             raise ValueError(f"Title must be 65 characters or less, got {len(v)}")
+        return v
+
+    @validator("description")
+    def validate_description_length(cls, v):
+        if not v or len(v) < 10:
+            raise ValueError("Description must be provided and substantive")
         return v
 
     @validator("hashtags")
@@ -63,6 +70,14 @@ class SEOMetadata(BaseModel):
             raise ValueError(f"Must have 15-20 tags, got {len(v)}")
         return v
 
+    @validator("thumbnail_text")
+    def validate_thumbnail_text(cls, v):
+        if not v or len(v) < 3:
+            raise ValueError("Thumbnail text must be provided and meaningful")
+        if len(v) > 100:
+            raise ValueError(f"Thumbnail text should be concise (≤100 chars), got {len(v)}")
+        return v
+
 class TopicInput(BaseModel):
     """User input for video generation."""
     topic: str = Field(..., description="The topic for the video")
@@ -75,12 +90,52 @@ class TopicInput(BaseModel):
             raise ValueError("Topic must be at least 3 characters")
         return v.strip()
 
+class ScriptSegment(BaseModel):
+    """Represents a single speaker turn in the script for TTS processing."""
+    segment_number: int
+    speaker: str  # "Sarah" or "Alex"
+    dialogue_text: str
+    original_line_numbers: list[int]  # Track which original lines make up this segment
+    sequence_identifier: str  # e.g., "segment_1_sarah", "segment_2_alex"
+    word_count: int
+
+class SegmentedScript(BaseModel):
+    """Script segmented into speaker turns for TTS processing."""
+    topic: str
+    total_segments: int
+    segments: list[ScriptSegment]
+    original_line_count: int
+    total_word_count: int
+
+    @model_validator(mode='after')
+    def validate_complete_segmentation(self):
+        # Verify segment sequence is correct
+        if self.segments:
+            segment_numbers = [s.segment_number for s in self.segments]
+            expected_numbers = list(range(1, len(self.segments) + 1))
+            if segment_numbers != expected_numbers:
+                raise ValueError(f"Segment numbering not sequential: {segment_numbers}")
+        return self
+
+class TTSAudioMetadata(BaseModel):
+    """Metadata about generated TTS audio."""
+    topic: str
+    total_duration_seconds: float
+    sarah_duration_seconds: float
+    alex_duration_seconds: float
+    total_segments_processed: int
+    segmented_script: SegmentedScript
+    sarah_voice_id: str = "Despina"
+    alex_voice_id: str = "Iapetus"
+    generated_at: datetime = Field(default_factory=datetime.now)
+
 class VideoOutput(BaseModel):
     """Complete video generation output metadata."""
     topic: str
     topic_slug: str  # URL-friendly version
     script: Script
     seo_metadata: Optional[SEOMetadata] = None
+    tts_metadata: Optional[TTSAudioMetadata] = None
     output_folder: str
     created_at: datetime = Field(default_factory=datetime.now)
     files: dict = Field(default_factory=dict)  # Maps filename to path

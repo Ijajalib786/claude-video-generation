@@ -306,11 +306,393 @@ outputs/
 
 ---
 
-## PHASE 2: SEO Metadata + Multi-Agent Coordination - NOT_STARTED
+## PHASE 2: SEO Metadata Agent with Thumbnail Text - READY_TO_IMPLEMENT
 
-### Status: BLOCKED - Waiting for Phase 1 Approval
+### Status: 🚀 READY_TO_IMPLEMENT (Phase 1 Testing Complete)
 
-**Do not start until:** Phase 1 passes testing and receives explicit approval.
+**Approval Status:** Phase 1 tested and approved. Phase 2 ready to begin.
+
+**Phase 2 Focus:** Generate SEO metadata optimized for maximum YouTube search traffic + thumbnail text
+
+---
+
+### Phase 2 Architecture
+
+```
+Phase 1 Output (Script)
+        │
+        ▼
+┌──────────────────────────────────┐
+│  Script Generation Agent         │
+│  (Phase 1)                       │
+│                                  │
+│ Input: Topic                     │
+│ Output: script.txt               │
+└────────┬─────────────────────────┘
+         │
+         │ (File handoff: script.txt)
+         │
+         ▼
+┌──────────────────────────────────┐
+│  SEO Metadata Agent (NEW)        │
+│  - Modern YouTube SEO Strategy   │
+│  - Trend-based optimization      │
+│  - Title (65 chars)              │
+│  - Description (500+ words)      │
+│  - Hashtags (15-20)              │
+│  - Tags (15-20)                  │
+│  - Thumbnail Text                │
+└────────┬─────────────────────────┘
+         │
+         ▼
+   Output Folder ({topic}/)
+   ├── script.txt
+   ├── script_metadata.json
+   └── seo_metadata.txt ← NEW
+```
+
+---
+
+### SEO Strategy for Maximum Views (2026)
+
+**Core Strategy: Trend-Based Search Optimization**
+
+1. **Title Optimization**
+   - Format: `[Benefit/Question] | [Channel Focus]`
+   - Example: `How to Apologize Politely in English | Learn Natural Phrases`
+   - Include: High-intent long-tail keywords
+   - Max: 65 characters (YouTube limit)
+   - Priority: Searchability + Click-through rate (CTR)
+
+2. **Description Strategy**
+   - First 150 chars: Keyword-rich hook (what viewers see before "more")
+   - Body: Educational value + learning points
+   - Include: Timestamps, related topics, calls-to-action
+   - Keywords: Sprinkled naturally (3-5 main keywords)
+   - Links: Suggest related videos from your channel
+   - Length: 500-1000 words (improves ranking)
+
+3. **Hashtags Strategy** (15-20 total)
+   - 5-7: High-volume popular (#learnEnglish, #englishconversation)
+   - 5-7: Medium-volume niche (#englishphrasesanctuary, #conversationalenglish)
+   - 3-5: Long-tail specific to topic (#howtoapologizepolitely, #englishculturelession)
+   - Avoid: Hashtags with <10K views (won't help ranking)
+
+4. **Tags Strategy** (15-20 total)
+   - Main keyword: Topic itself ("apologizing in English")
+   - Related: Broader category ("English learning", "English conversation")
+   - Long-tail: Specific phrases ("how to apologize", "polite English phrases")
+   - Trending: Current English learning trends (e.g., "conversational English", "practical English")
+   - Channel brand: "SPEAK ENGLISH SMARTER" (build channel authority)
+
+5. **Thumbnail Text Strategy**
+   - One bold, eye-catching text overlay
+   - Format: Action word + benefit/curiosity
+   - Examples:
+     - "SAY NO POLITELY" (action + benefit)
+     - "APOLOGIZE LIKE A NATIVE" (benefit-driven)
+     - "PERFECT APOLOGY?" (curiosity gap)
+   - Font: Bold, sans-serif, high contrast
+   - Position: Top or center of thumbnail
+   - Size: Readable at small YouTube thumbnail scale
+
+---
+
+### Implementation: SEO Agent (`src/agents/seo_metadata_agent.py`)
+
+**Function Signature:**
+```python
+def generate_seo_metadata(script: Script, topic_input: TopicInput) -> SEOMetadata:
+    """
+    Generate YouTube-optimized SEO metadata with maximum search traffic focus.
+    
+    Args:
+        script: Script object with dialogue content
+        topic_input: Topic and context from user
+    
+    Returns:
+        SEOMetadata object with:
+        - title: Optimized, 65 chars max
+        - description: Keyword-rich, 500+ words
+        - hashtags: 15-20 trending/relevant hashtags
+        - tags: 15-20 SEO tags
+        - thumbnail_text: Single compelling text overlay
+    """
+```
+
+**System Prompt for Claude:**
+The SEO agent's system prompt will instruct Claude to:
+
+```
+You are a YouTube SEO expert optimizing titles, descriptions, hashtags, tags, and thumbnail text 
+for an English learning channel (SPEAK ENGLISH SMARTER).
+
+GOAL: Maximize search traffic and views through trend-based optimization.
+
+ANALYSIS:
+1. Analyze the script topic for trending keywords
+2. Identify high-intent search phrases learners use
+3. Balance searchability with authentic, clickable content
+
+TITLE GENERATION (≤65 chars):
+- Format: [Verb/Question] + [Benefit] + [Specificity]
+- Include long-tail keyword (topic-specific)
+- Make it searchable AND clickable
+- Example: "How to Apologize Politely in English | Learn Natural Phrases"
+
+DESCRIPTION GENERATION (500-1000 words):
+- Hook (first 150 chars): Most important keywords, compelling
+- Body: Explain what viewers will learn, educational value
+- Keywords: Sprinkle naturally (target: 3-5 main keywords)
+- Calls-to-action: "Like", "Subscribe", "Comment"
+- Related: Suggest related topics/videos
+- Timestamps: Major sections of the video
+- Total: 500+ words for ranking
+
+HASHTAGS (15-20):
+- 40% High-volume (#learnEnglish, #englishconversation)
+- 40% Medium-volume niche (#englishphrases, #englishcultureesson)
+- 20% Long-tail specific (#howtoapologizepolitely)
+- Avoid: Hashtags with <10K views
+- Priority: Relevance over virality
+
+TAGS (15-20):
+- Main: Topic keyword phrase
+- Related: Broader learning categories
+- Specific: Long-tail variations
+- Trending: Current English learning trends
+- Brand: "SPEAK ENGLISH SMARTER"
+
+THUMBNAIL TEXT (One line):
+- Verb + Benefit OR Curiosity gap
+- ALL CAPS or Key words capitalized
+- Examples: "SAY NO POLITELY", "APOLOGIZE LIKE NATIVE", "PERFECT APOLOGY?"
+- Compelling, readable, urgent tone
+
+TRENDING FOCUS (2026):
+- Prioritize: Conversational English, practical communication
+- Include: Real-world scenarios (work, social, daily life)
+- Avoid: Academic, complex grammar focus
+- Emphasis: Confidence in speaking, natural phrasing
+```
+
+---
+
+### SEOMetadata Model Update
+
+**Update `src/models.py`:**
+
+```python
+class SEOMetadata(BaseModel):
+    """YouTube SEO metadata for a video."""
+    title: str                          # ≤65 chars
+    description: str                    # 500+ words
+    hashtags: list[str]                 # 15-20 items
+    tags: list[str]                     # 15-20 items
+    thumbnail_text: str                 # One compelling line (NEW)
+    
+    @validator("title")
+    def validate_title_length(cls, v):
+        if len(v) > 65:
+            raise ValueError(f"Title must be 65 characters or less, got {len(v)}")
+        return v
+    
+    @validator("description")
+    def validate_description_length(cls, v):
+        if len(v) < 500:
+            raise ValueError(f"Description should be 500+ words, got ~{len(v.split())}")
+        return v
+    
+    @validator("thumbnail_text")
+    def validate_thumbnail_text(cls, v):
+        if not v or len(v) < 3:
+            raise ValueError("Thumbnail text must be provided and meaningful")
+        if len(v) > 100:
+            raise ValueError(f"Thumbnail text should be concise (≤100 chars), got {len(v)}")
+        return v
+```
+
+---
+
+### Output Format: seo_metadata.txt
+
+**File: `outputs/{topic}/seo_metadata.txt`**
+
+```
+=== YOUTUBE SEO METADATA ===
+GENERATED FOR: [Topic Name]
+OPTIMIZED FOR: Maximum Search Traffic & Views
+
+TITLE:
+[Title - up to 65 characters]
+
+THUMBNAIL TEXT:
+[Single compelling text overlay for thumbnail]
+
+HASHTAGS:
+[#hashtag1] [#hashtag2] [#hashtag3] ... [#hashtag20]
+
+TAGS:
+[tag1], [tag2], [tag3], ... [tag20]
+
+DESCRIPTION:
+[500-1000 word description with keywords, structure, and CTAs]
+
+---
+Generated by SPEAK ENGLISH SMARTER SEO Agent
+Strategy: Trend-Based Search Optimization (2026)
+```
+
+---
+
+### Implementation Tasks
+
+#### Task 1: Create SEO Agent (`src/agents/seo_metadata_agent.py`)
+
+**Functions to implement:**
+
+```python
+def load_seo_prompt():
+    """Load SEO generation prompt with modern strategy."""
+    
+def generate_seo_metadata(script: Script, topic_input: TopicInput) -> SEOMetadata:
+    """Generate SEO metadata optimized for maximum views."""
+    # Call Claude API with enhanced SEO prompt
+    # Parse title, description, hashtags, tags, thumbnail_text
+    # Validate all fields
+    # Return SEOMetadata object
+    
+def save_seo_metadata_to_file(seo_metadata: SEOMetadata, output_folder: Path) -> Path:
+    """Save SEO metadata as formatted text file."""
+    # Format metadata as above
+    # Save to seo_metadata.txt
+    # Return file path
+```
+
+---
+
+#### Task 2: Update CLI Integration (`scripts/cli.py`)
+
+**Sequential workflow:**
+
+```python
+# 1. Generate script (Phase 1)
+script = generate_script(topic_input, target_words=target_words, tolerance=None)
+script_path = save_script_to_file(script, output_folder)
+
+# 2. Generate SEO metadata (Phase 2) - NEW
+seo_metadata = generate_seo_metadata(script, topic_input)
+seo_path = save_seo_metadata_to_file(seo_metadata, output_folder)
+
+# 3. Display results
+print(f"\n=== SEO Metadata Generated ===")
+print(f"Title: {seo_metadata.title}")
+print(f"Thumbnail Text: {seo_metadata.thumbnail_text}")
+print(f"Hashtags: {' '.join(seo_metadata.hashtags[:5])}...")
+print(f"Tags: {', '.join(seo_metadata.tags[:5])}...")
+print(f"Description: {seo_metadata.description[:200]}...")
+```
+
+---
+
+#### Task 3: Output Folder Structure
+
+```
+outputs/
+└── {topic_slug}/
+    ├── script.txt              # Phase 1: Dialogue script
+    ├── script_metadata.json    # Phase 1: Script stats
+    └── seo_metadata.txt        # Phase 2: SEO (NEW)
+                                 ├── Title
+                                 ├── Thumbnail Text
+                                 ├── Hashtags
+                                 ├── Tags
+                                 └── Description
+```
+
+---
+
+### Testing Strategy for Phase 2
+
+**Test Script: `tests/test_phase_2.py`**
+
+```python
+def test_seo_generation():
+    """Test SEO metadata generation for multiple topics."""
+    topics = [
+        "How to Apologize Politely",
+        "Making Small Talk at Parties",
+        "Job Interview English Tips",
+        "Casual English Slang",
+        "Business Email Writing"
+    ]
+    
+    for topic in topics:
+        # Generate script
+        script = generate_script(topic)
+        
+        # Generate SEO
+        seo = generate_seo_metadata(script, topic)
+        
+        # Validate
+        assert len(seo.title) <= 65
+        assert len(seo.description) >= 500
+        assert len(seo.hashtags) == 20
+        assert len(seo.tags) == 20
+        assert len(seo.thumbnail_text) > 0
+        assert len(seo.thumbnail_text) <= 100
+        
+        # Save and verify file
+        path = save_seo_metadata_to_file(seo, output_folder)
+        assert path.exists()
+```
+
+**Success Criteria:**
+- ✅ All 5 topics generate valid SEO metadata
+- ✅ Validation passes: title ≤65, description ≥500 words, hashtags=20, tags=20
+- ✅ Thumbnail text is compelling and concise (≤100 chars)
+- ✅ Files created: script.txt + seo_metadata.txt
+- ✅ SEO content is optimized for search traffic
+- ✅ No API errors
+
+---
+
+### Phase 2 Completion Checklist
+
+- [ ] Updated `src/models.py` with thumbnail_text field in SEOMetadata
+- [ ] Created `src/agents/seo_metadata_agent.py` with modern SEO strategy
+- [ ] Implemented `generate_seo_metadata()` function
+- [ ] Implemented `save_seo_metadata_to_file()` function
+- [ ] Updated `scripts/cli.py` with Phase 2 integration
+- [ ] Tested: Generate script + SEO for 5 diverse topics
+- [ ] All validation passes (title, description, hashtags, tags, thumbnail_text)
+- [ ] SEO metadata is trend-focused and search-optimized
+- [ ] Created `tests/test_phase_2.py` for comprehensive testing
+- [ ] Created `docs/PHASE_2_README.md` with SEO strategy guide
+- [ ] Updated `CLAUDE.md` with Phase 2 status
+- [ ] Output files verified: script.txt + seo_metadata.txt
+- [ ] Ready for Phase 2 approval
+
+---
+
+### Key Learning Outcomes for Phase 2
+
+✅ **Data Flow Between Agents:** Script output → SEO input  
+✅ **File-based Handoffs:** script.txt used by SEO agent  
+✅ **Sequential Workflow:** Generate → Process → Save  
+✅ **API Integration:** Claude generates diverse metadata types  
+✅ **Validation Patterns:** Multiple field types with different constraints  
+✅ **YouTube SEO Best Practices:** Real-world application of optimization  
+
+---
+
+### Next Phase (Phase 3)
+
+After Phase 2 approval:
+- **Phase 3:** TTS Agent + Image Generation Agent
+- Generate audio with distinct voices (Sarah & Alex)
+- Generate thumbnail.png and video_scene.png images
+- Keep same sequential workflow pattern
 
 ---
 

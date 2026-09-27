@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
 SPEAK ENGLISH SMARTER - Video Generation Pipeline
-Phase 1: Script Generation Agent
+Phase 1, 2 & 3: Script Generation + SEO Metadata + Text-to-Speech
 
-Interactive CLI for generating English learning video scripts.
+Interactive CLI for generating English learning video scripts, metadata, and audio.
 """
 
 import click
@@ -18,6 +18,8 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from src import config
 from src.models import TopicInput
 from src.agents.script_generation_agent import generate_script, save_script_to_file
+from src.agents.seo_metadata_agent import generate_seo_metadata, save_seo_metadata_to_file
+from src.agents.tts_agent import generate_tts_audio
 
 class Colors:
     HEADER = '\033[95m'
@@ -35,7 +37,7 @@ def print_header():
     print(f"\n{Colors.HEADER}{Colors.BOLD}")
     print("=" * 60)
     print("  SPEAK ENGLISH SMARTER - Video Generation Pipeline")
-    print("  Phase 1: Script Generation Agent")
+    print("  Phase 1: Script Generation | Phase 2: SEO Metadata")
     print("=" * 60)
     print(f"{Colors.ENDC}")
 
@@ -140,23 +142,72 @@ def main(topic, context, output):
         # Save script
         script_path = save_script_to_file(script, output_folder)
 
-        # Display summary
-        print(f"\n{Colors.BOLD}{Colors.OKGREEN}=== Script Generation Complete ==={Colors.ENDC}")
+        # Generate SEO metadata (Phase 2)
+        seo_path = None
+        tts_metadata = None
+        try:
+            seo_metadata = generate_seo_metadata(script, topic_input)
+            seo_path = save_seo_metadata_to_file(seo_metadata, output_folder)
+
+            # Display SEO summary
+            print(f"\n{Colors.BOLD}{Colors.OKGREEN}=== SEO Metadata Generated ==={Colors.ENDC}")
+            print(f"📌 Title: {seo_metadata.title}")
+            print(f"🎯 Thumbnail Text: {seo_metadata.thumbnail_text}")
+            print(f"#️⃣  Hashtags: {' '.join(seo_metadata.hashtags[:5])} ... (+15 more)")
+            print(f"🏷️  Tags: {', '.join(seo_metadata.tags[:5])} ... (+15 more)")
+            print(f"📄 Description: {seo_metadata.description[:150]}...")
+        except Exception as e:
+            print_warning(f"SEO generation skipped: {e}")
+            seo_path = None
+
+        # Generate TTS audio (Phase 3)
+        try:
+            if config.GOOGLE_GEMINI_API_KEY:
+                print(f"\n{Colors.BOLD}{Colors.OKBLUE}Starting Phase 3: Text-to-Speech Generation...{Colors.ENDC}")
+                tts_metadata = generate_tts_audio(script, output_folder)
+
+                # Display TTS summary
+                print(f"\n{Colors.BOLD}{Colors.OKGREEN}=== TTS Audio Generated ==={Colors.ENDC}")
+                print(f"🔊 Total Duration: {tts_metadata.total_duration_seconds:.1f}s")
+                print(f"   - Sarah: {tts_metadata.sarah_duration_seconds:.1f}s")
+                print(f"   - Alex: {tts_metadata.alex_duration_seconds:.1f}s")
+                print(f"🎯 Segments: {tts_metadata.total_segments_processed}")
+                print(f"📁 Audio folder: {output_folder / 'audio'}")
+            else:
+                print_warning("GOOGLE_GEMINI_API_KEY not set - TTS skipped")
+                print_info("To enable TTS: Set GOOGLE_GEMINI_API_KEY in config/.env")
+        except Exception as e:
+            print_warning(f"TTS generation skipped: {e}")
+            tts_metadata = None
+
+        # Display complete summary
+        print(f"\n{Colors.BOLD}{Colors.OKGREEN}=== Generation Complete ==={Colors.ENDC}")
         print(f"📁 Output folder: {output_folder}")
-        print(f"📝 Script file: {script_path.name}")
-        print(f"📊 Statistics:")
+        print(f"📝 Files created:")
+        print(f"   ✓ script.txt")
+        print(f"   ✓ script_metadata.json")
+        if seo_path:
+            print(f"   ✓ seo_metadata.txt")
+        if tts_metadata:
+            print(f"   ✓ audio/sarah_audio.mp3")
+            print(f"   ✓ audio/alex_audio.mp3")
+            print(f"   ✓ audio/combined_audio.mp3")
+            print(f"   ✓ audio/tts_metadata.json")
+            print(f"   ✓ audio/segmentation_report.txt")
+
+        print(f"\n📊 Script Statistics:")
         print(f"   - Lines: {len(script.lines)}")
         print(f"   - Words: {script.word_count}")
         print(f"   - Duration: ~{script.estimated_duration_minutes:.1f} minutes")
         print(f"   - Characters: Sarah (teacher) & Alex (learner)")
 
         # Next steps
-        print(f"\n{Colors.BOLD}Next Steps:{Colors.ENDC}")
-        print("✨ Phase 1 Complete: Script Generation")
-        print("📋 Phase 2: Add SEO metadata generation (coming next)")
-        print("🎤 Phase 3: Add Text-to-Speech conversion")
-        print("🖼️  Phase 4: Add thumbnail generation")
-        print("🎬 Phase 5: Add video assembly (FFmpeg)")
+        print(f"\n{Colors.BOLD}Pipeline Status:{Colors.ENDC}")
+        print("✅ Phase 1: Script Generation - Complete")
+        print("✅ Phase 2: SEO Metadata - Complete" if seo_path else "⏳ Phase 2: SEO Metadata - Skipped")
+        print("✅ Phase 3: Text-to-Speech - Complete" if tts_metadata else "⏳ Phase 3: Text-to-Speech - Skipped")
+        print("🖼️  Phase 4: Thumbnail generation (coming soon)")
+        print("🎬 Phase 5: Video assembly with FFmpeg (coming soon)")
 
         return script
 

@@ -22,6 +22,7 @@ TEMP_DIR.mkdir(exist_ok=True)
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip("'\"")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip("'\"")
 GOOGLE_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
+GOOGLE_GEMINI_API_KEY = os.getenv("GOOGLE_GEMINI_API_KEY", "").strip("'\"")  # For Google Studio TTS
 
 # Paths
 PROMPTS_DIR = REFERENCES_DIR / "prompts"
@@ -45,6 +46,16 @@ CLAUDE_MODEL = "claude-sonnet-5"
 GPT_MODEL = "gpt-4o"
 TEMPERATURE = 0.7
 MAX_TOKENS = 4096
+
+# TTS Settings (Phase 3)
+TTS_MODEL = "gemini-3.8-flash-tts"
+TTS_VOICES = {
+    "Sarah": "Kore",    # Female voice (from official Google code)
+    "Alex": "Puck"      # Male voice (from official Google code)
+}
+TTS_AUDIO_FORMAT = "mp3"  # Output format
+TTS_SAMPLE_RATE = 24000  # Sample rate in Hz
+TTS_PARALLEL_THREADS = 2  # Number of parallel synthesis threads (Sarah + Alex)
 
 # Logging
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
