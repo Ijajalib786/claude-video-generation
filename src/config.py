@@ -50,8 +50,8 @@ MAX_TOKENS = 4096
 # TTS Settings (Phase 3)
 TTS_MODEL = "gemini-3.8-flash-tts"
 TTS_VOICES = {
-    "Sarah": "Kore",    # Female voice (from official Google code)
-    "Alex": "Puck"      # Male voice (from official Google code)
+    "Sarah": "Leda",    # Female voice (from official Google code)
+    "Alex": "Iapetus"      # Male voice (from official Google code)
 }
 TTS_AUDIO_FORMAT = "mp3"  # Output format
 TTS_SAMPLE_RATE = 24000  # Sample rate in Hz

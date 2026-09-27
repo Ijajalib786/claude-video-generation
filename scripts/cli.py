@@ -75,6 +75,18 @@ def get_video_length_input():
         except ValueError:
             print_warning("Please enter a valid number")
 
+def get_skip_tts_input():
+    """Ask user if they want to skip TTS generation."""
+    while True:
+        response = input(f"{Colors.OKBLUE}Generate TTS audio? (Y/n, default: yes): {Colors.ENDC}").strip().lower()
+
+        if not response or response == 'y' or response == 'yes':
+            return False  # Don't skip TTS
+        elif response == 'n' or response == 'no':
+            return True  # Skip TTS
+        else:
+            print_warning("Please enter 'y' or 'n'")
+
 @click.command()
 @click.option('--topic', prompt=False, default=None, help='Video topic')
 @click.option('--context', prompt=False, default=None, help='Additional context for the topic')
@@ -114,6 +126,13 @@ def main(topic, context, output):
     target_words = video_length_minutes * config.WORDS_PER_MINUTE
     # Note: Actual tolerance is ±35% to account for natural variation in script generation
     print_success(f"Target: {video_length_minutes} minutes (~{target_words} words)")
+
+    # Ask if user wants TTS
+    skip_tts = get_skip_tts_input()
+    if skip_tts:
+        print_info("TTS generation will be skipped")
+    else:
+        print_info("TTS audio will be generated")
 
     # Create topic input
     try:
@@ -162,7 +181,9 @@ def main(topic, context, output):
 
         # Generate TTS audio (Phase 3)
         try:
-            if config.GOOGLE_GEMINI_API_KEY:
+            if skip_tts:
+                print_info("TTS generation skipped by user (--skip-tts flag)")
+            elif config.GOOGLE_GEMINI_API_KEY:
                 print(f"\n{Colors.BOLD}{Colors.OKBLUE}Starting Phase 3: Text-to-Speech Generation...{Colors.ENDC}")
                 tts_metadata = generate_tts_audio(script, output_folder)
 

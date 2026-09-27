@@ -6,6 +6,7 @@ Generates audio from scripts using Google Generative AI (google.genai package).
 import json
 import io
 import wave
+import base64
 from pathlib import Path
 from threading import Thread
 from typing import Optional
@@ -209,19 +210,56 @@ def _synthesize_speaker_audio(text: str, speaker: str, voice_id: str,
 
         client = genai.Client(api_key=config.GOOGLE_GEMINI_API_KEY)
 
-        # Create chat session with TTS model
-        chat = client.chats.create(model=config.TTS_MODEL)
+        # For combined dialogue, use interactions API with speaker annotations
+        if speaker == "Both":
+            # Format content with speaker annotations for professional audio
+            content_parts = []
+            for segment in segmented.segments:
+                seg_speaker = segment.speaker
+                style = "warm and patient" if seg_speaker == "Sarah" else "curious and friendly"
 
-        # Send text to generate audio
-        response = chat.send_message(text)
+                content_parts.append({
+                    "type": "text",
+                    "text": segment.dialogue_text,
+                    "annotations": [{
+                        "type": "speech_metadata",
+                        "speaker": seg_speaker,
+                        "style": style
+                    }]
+                })
 
-        # Extract audio from response.parts[].inline_data.data
-        audio_bytes = None
-        if hasattr(response, 'parts') and response.parts:
-            for part in response.parts:
-                if hasattr(part, 'inline_data') and part.inline_data:
-                    audio_bytes = part.inline_data.data
-                    break
+            # Call interactions API with proper structure
+            interaction = client.interactions.create(
+                model=config.TTS_MODEL,
+                input=[{
+                    "type": "user_input",
+                    "content": content_parts,
+                }],
+                response_format={"type": "audio"},
+                generation_config={
+                    "speech_config": {
+                        "mode": "conversational",
+                        "speakers": [
+                            {"speaker": "Sarah", "voice": config.TTS_VOICES["Sarah"]},
+                            {"speaker": "Alex", "voice": config.TTS_VOICES["Alex"]},
+                        ],
+                    }
+                },
+            )
+
+            # Extract audio from interaction response (base64 encoded)
+            audio_bytes = base64.b64decode(interaction.output_audio.data)
+        else:
+            # For single speaker, send plain text via interactions API
+            interaction = client.interactions.create(
+                model=config.TTS_MODEL,
+                input=[{
+                    "type": "user_input",
+                    "content": [{"type": "text", "text": text}],
+                }],
+                response_format={"type": "audio"},
+            )
+            audio_bytes = base64.b64decode(interaction.output_audio.data)
 
         if not audio_bytes:
             raise ValueError("No audio data in response")
