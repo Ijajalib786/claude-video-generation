@@ -20,6 +20,7 @@ from src.models import TopicInput
 from src.agents.script_generation_agent import generate_script, save_script_to_file
 from src.agents.seo_metadata_agent import generate_seo_metadata, save_seo_metadata_to_file
 from src.agents.tts_agent import generate_tts_audio
+from src.agents.image_generation_agent import generate_thumbnail_image, generate_video_scene
 
 class Colors:
     HEADER = '\033[95m'
@@ -87,6 +88,18 @@ def get_skip_tts_input():
         else:
             print_warning("Please enter 'y' or 'n'")
 
+def get_skip_images_input():
+    """Ask user if they want to skip image generation."""
+    while True:
+        response = input(f"{Colors.OKBLUE}Generate images (thumbnail + video scene)? (Y/n, default: yes): {Colors.ENDC}").strip().lower()
+
+        if not response or response == 'y' or response == 'yes':
+            return False  # Don't skip images
+        elif response == 'n' or response == 'no':
+            return True  # Skip images
+        else:
+            print_warning("Please enter 'y' or 'n'")
+
 @click.command()
 @click.option('--topic', prompt=False, default=None, help='Video topic')
 @click.option('--context', prompt=False, default=None, help='Additional context for the topic')
@@ -134,6 +147,13 @@ def main(topic, context, output):
     else:
         print_info("TTS audio will be generated")
 
+    # Ask if user wants images (Phase 4)
+    skip_images = get_skip_images_input()
+    if skip_images:
+        print_info("Image generation will be skipped")
+    else:
+        print_info("Images (thumbnail + video scene) will be generated")
+
     # Create topic input
     try:
         topic_input = TopicInput(
@@ -163,6 +183,7 @@ def main(topic, context, output):
 
         # Generate SEO metadata (Phase 2)
         seo_path = None
+        seo_metadata = None
         tts_metadata = None
         try:
             seo_metadata = generate_seo_metadata(script, topic_input)
@@ -201,6 +222,35 @@ def main(topic, context, output):
             print_warning(f"TTS generation skipped: {e}")
             tts_metadata = None
 
+        # Generate images (Phase 4)
+        thumbnail_metadata = None
+        video_scene_metadata = None
+
+        if skip_images:
+            print_info("Image generation skipped by user")
+        elif config.OPENAI_API_KEY:
+            try:
+                print(f"\n{Colors.BOLD}{Colors.OKBLUE}Starting Phase 4: Image Generation...{Colors.ENDC}")
+
+                # Generate thumbnail with context
+                thumbnail_metadata = generate_thumbnail_image(script, seo_metadata if seo_metadata else None, output_folder, context=context)
+
+                # Generate video scene with context
+                video_scene_metadata = generate_video_scene(script, seo_metadata if seo_metadata else None, output_folder, context=context)
+
+                if thumbnail_metadata or video_scene_metadata:
+                    print(f"\n{Colors.BOLD}{Colors.OKGREEN}=== Images Generated ==={Colors.ENDC}")
+                    if thumbnail_metadata:
+                        print(f"🖼️  Thumbnail: {output_folder / 'thumbnail.png'}")
+                    if video_scene_metadata:
+                        print(f"🎬 Video Scene: {output_folder / 'video_scene.png'}")
+
+            except Exception as e:
+                print_warning(f"Image generation error: {e}")
+        else:
+            print_warning("OPENAI_API_KEY not set - Image generation skipped")
+            print_info("To enable images: Set OPENAI_API_KEY in config/.env")
+
         # Display complete summary
         print(f"\n{Colors.BOLD}{Colors.OKGREEN}=== Generation Complete ==={Colors.ENDC}")
         print(f"📁 Output folder: {output_folder}")
@@ -215,6 +265,10 @@ def main(topic, context, output):
             print(f"   ✓ audio/combined_audio.mp3")
             print(f"   ✓ audio/tts_metadata.json")
             print(f"   ✓ audio/segmentation_report.txt")
+        if thumbnail_metadata:
+            print(f"   ✓ thumbnail.png")
+        if video_scene_metadata:
+            print(f"   ✓ video_scene.png")
 
         print(f"\n📊 Script Statistics:")
         print(f"   - Lines: {len(script.lines)}")
@@ -227,6 +281,7 @@ def main(topic, context, output):
         print("✅ Phase 1: Script Generation - Complete")
         print("✅ Phase 2: SEO Metadata - Complete" if seo_path else "⏳ Phase 2: SEO Metadata - Skipped")
         print("✅ Phase 3: Text-to-Speech - Complete" if tts_metadata else "⏳ Phase 3: Text-to-Speech - Skipped")
+        print("✅ Phase 4: Image Generation - Complete" if (thumbnail_metadata or video_scene_metadata) else "⏳ Phase 4: Image Generation - Skipped")
         print("🖼️  Phase 4: Thumbnail generation (coming soon)")
         print("🎬 Phase 5: Video assembly with FFmpeg (coming soon)")
 

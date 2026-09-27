@@ -35,6 +35,24 @@ THUMBNAIL_PROMPT_PATH = PROMPTS_DIR / "Thumbnail Image- Prompt.txt"
 VIDEO_PROMPT_PATH = PROMPTS_DIR / "Video Image- Prompt.txt"
 EXAMPLE_SCRIPT_PATH = EXAMPLES_DIR / "Script- Say No Politely.txt"
 
+# Canonical References (Phase 4: Image Generation)
+CANONICAL_REFERENCES = {
+    'thumbnail': [
+        IMAGES_DIR / "Thumbnail_character__style_canonical_ref-1.png",
+        IMAGES_DIR / "Thumbnail_character_style_canonical_ref-2.png"
+    ],
+    'video': [
+        IMAGES_DIR / "Video_character_style_canonical_ref_1.png",
+        IMAGES_DIR / "Video_character_style_canonical_ref_2.png"
+    ]
+}
+
+# Image generation settings
+IMAGE_GENERATION_MODEL = "gpt-image-2.5-sunburst"
+THUMBNAIL_SIZE = "1280x720"
+VIDEO_SCENE_SIZE = "1920x1088"  # Divisible by 16 for API requirements
+TEXT_POSITION_AUTO = "AUTO"  # Let API decide best text placement
+
 # Content specs
 SCRIPT_MIN_WORDS = 1500
 SCRIPT_MAX_WORDS = 2000

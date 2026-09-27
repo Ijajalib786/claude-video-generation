@@ -314,30 +314,52 @@ Use only a few meaningful objects.
 Avoid distractions.
 
 ════════════════════════════════════
-9. TEXT AREA
+9. TEXT AREA RESERVATION (ADAPTIVE)
 ════════════════════════════════════
 
-Reserve clean space for adding thumbnail text.
+Reserve adaptive white space for adding YouTube thumbnail text.
 
-AUTO
-Choose the strongest layout automatically.
+CRITICAL: Text area must be SOFT-COLORED BLEND (not pure white)
+The reserved area should blend naturally with the background colors.
 
-LEFT
-Reserve about 40% of the left side.
+PLACEMENT BY SCENARIO:
 
-RIGHT
-Reserve about 40% of the right side.
+Home / Casual Scenes
+  → Reserve 40% of LEFT side
+  → Use soft beige/cream background blend
+  → Example: Living room, bedroom, kitchen
 
-TOP
-Reserve about 30% of the top.
+Office / Professional Scenes
+  → Reserve 30% of TOP area
+  → Use soft blue/gray background blend
+  → Example: Office, business meeting, interview
 
-BOTTOM
-Reserve about 30% of the bottom.
+Travel / Outdoor Scenes
+  → Reserve 35% of RIGHT side
+  → Use soft sky/cloud background blend
+  → Example: Airport, hotel, beach, restaurant
 
-CENTER
-Reserve a clean center area for short titles only.
+Restaurant / Social Scenes
+  → Reserve 40% of LEFT side
+  → Use soft warm background blend
+  → Example: Coffee shop, restaurant, party
 
-Never place characters or important objects inside the reserved text area.
+Shopping / Activity Scenes
+  → Reserve 35% of RIGHT side
+  → Use soft neutral background blend
+  → Example: Shopping, activities, hobbies
+
+REQUIREMENTS:
+• Reserved area must be CLEAN and UNCLUTTERED
+• NO characters or important objects in text area
+• Background colors should be SOFT and MUTED
+• Text area blends naturally with scene (gradient or soft color)
+• Area is clearly distinguished but not jarring
+• Allows easy text overlay without background removal
+
+IMPORTANT: Text area is about 20-30% of the image.
+The background fill should use colors from the scene's tone palette,
+but lighter and more muted for optimal text contrast.
 
 ════════════════════════════════════
 10. COMPOSITION
@@ -359,24 +381,36 @@ The thumbnail should tell the story even without text.
 
 Lighting
 
-• Bright
-• Warm
-• Soft
-• Natural shadows
-• Faces are the brightest element
+• Bright and warm (not harsh)
+• Soft, natural lighting
+• Soft shadows (not harsh contrast)
+• Faces are the brightest elements
+• Overall feeling: warm, inviting, comfortable for long viewing
 
-Color Palette
+Color Palette (SOFT & CALM TONES)
 
-• Soft Blue
-• Pastel Green
-• Warm Yellow
-• Cream White
-• Warm Beige
-• Muted Orange
-• Light Gray
+PRIMARY PALETTE:
+• Soft Blue (muted, calm, educational)
+• Pastel Green (soft, natural, inviting)
+• Warm Yellow (gentle, not neon)
+• Cream White (soft background)
+• Warm Beige (earthy, calm)
+• Muted Orange (soft, warm)
+• Light Gray (neutral, professional)
 
-Bright educational colors.
-Never oversaturated.
+CRITICAL COLOR REQUIREMENTS:
+✓ Use SOFT, MUTED tones (like the sample reference)
+✓ Colors should feel calm and inviting, not energetic or bright
+✓ NO oversaturated or neon colors
+✓ NO bright primary colors (use pastel/muted versions)
+✓ Overall aesthetic: warm, educational, professional, friendly
+
+COLOR TONE EXAMPLES:
+GOOD (Soft):  Soft blue (#87CEEB), Pastel green (#98D98E), Warm beige (#F5E6D3)
+BAD (Bright): Bright blue (#0000FF), Neon green (#00FF00), Harsh orange (#FF6600)
+
+The entire image should feel like a premium educational thumbnail.
+Avoid oversaturation at all costs.
 
 ════════════════════════════════════
 12. STRICT RULES

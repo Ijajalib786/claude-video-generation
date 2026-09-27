@@ -129,6 +129,16 @@ class TTSAudioMetadata(BaseModel):
     alex_voice_id: str = "Iapetus"
     generated_at: datetime = Field(default_factory=datetime.now)
 
+class ImageMetadata(BaseModel):
+    """Metadata about generated images (thumbnail and video scene)."""
+    topic: str
+    image_type: str  # "thumbnail" or "video_scene"
+    file_path: str
+    resolution: str  # "1280x720" or "1920x1080"
+    generation_model: str  # Claude or ChatGPT API
+    prompt_used: str  # Reference prompt name
+    generated_at: datetime = Field(default_factory=datetime.now)
+
 class VideoOutput(BaseModel):
     """Complete video generation output metadata."""
     topic: str
@@ -136,6 +146,8 @@ class VideoOutput(BaseModel):
     script: Script
     seo_metadata: Optional[SEOMetadata] = None
     tts_metadata: Optional[TTSAudioMetadata] = None
+    thumbnail_metadata: Optional[ImageMetadata] = None  # Phase 4
+    video_scene_metadata: Optional[ImageMetadata] = None  # Phase 4
     output_folder: str
     created_at: datetime = Field(default_factory=datetime.now)
     files: dict = Field(default_factory=dict)  # Maps filename to path
