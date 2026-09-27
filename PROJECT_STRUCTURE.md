@@ -13,16 +13,18 @@ claude-video-generation/                    # Project root
 │   ├── models.py                           # Data validation (Pydantic)
 │   │   └── Script, ScriptLine, TopicInput, SEOMetadata, VideoOutput
 │   │
-│   └── agents/                             # Agent implementations
+│   └── agents/                             # Agent implementations (All phases complete)
 │       ├── __init__.py
-│       ├── script_generation_agent.py      # Phase 1: Generate scripts from topics
-│       │   └── generate_script(), _parse_script(), _validate_script_quality()
-│       │
-│       └── (Future agents)
-│           ├── seo_metadata_agent.py       # Phase 2: Generate SEO metadata
-│           ├── tts_agent.py                # Phase 3: Text-to-Speech
-│           ├── image_generation_agent.py   # Phase 3: Image generation
-│           └── video_assembly_agent.py     # Phase 4: FFmpeg assembly
+│       ├── script_generation_agent.py      # Phase 1: Script generation
+│       │   └── generate_script(), save_script_to_file()
+│       ├── seo_metadata_agent.py           # Phase 2: SEO metadata
+│       │   └── generate_seo_metadata(), save_seo_metadata_to_file()
+│       ├── tts_agent.py                    # Phase 3: Text-to-Speech
+│       │   └── generate_tts_audio(), _parse_speaker_segments()
+│       ├── thumbnail_image_agent.py        # Phase 4A: Thumbnail images
+│       │   └── generate_thumbnail_image(), _get_scenario_guidance()
+│       └── video_image_agent.py            # Phase 4B: Video scene images
+│           └── generate_video_scene(), _build_enhanced_prompt()
 │
 ├── 📜 scripts/                             # CLI and utility scripts
 │   ├── cli.py                              # Main entry point (formerly main.py)
@@ -61,15 +63,19 @@ claude-video-generation/                    # Project root
 │       └── Video_character_style_canonical_ref_2.png
 │
 ├── 📁 outputs/                             # Generated video outputs (created at runtime)
-│   └── {topic_slug}/                       # One folder per video
-│       ├── script.txt                      # Generated script (Sarah & Alex dialogue)
-│       ├── script_metadata.json            # Script statistics
+│   └── {topic_slug}/                       # One folder per video topic
+│       ├── script.txt                      # Phase 1: Sarah & Alex dialogue (1500-2000 words)
+│       ├── script_metadata.json            # Phase 1: Script statistics & metadata
 │       │
-│       └── (Phase 2+)
-│           ├── seo_metadata.json           # Title, description, hashtags, tags
-│           ├── thumbnail.png               # Generated thumbnail image
-│           ├── video_scene.png             # Generated video scene
-│           └── output_video.mp4            # Final video file
+│       ├── seo_metadata.txt                # Phase 2: Title, description, hashtags, tags
+│       │
+│       ├── audio/                          # Phase 3: Text-to-Speech folder
+│       │   ├── audio.mp3                   # Combined dialogue audio
+│       │   ├── tts_metadata.json           # TTS segment information
+│       │   └── segmentation_report.txt     # Line tracking validation
+│       │
+│       ├── thumbnail.png                   # Phase 4A: YouTube thumbnail (1280×720)
+│       └── video_scene.png                 # Phase 4B: Video background (1920×1088)
 │
 ├── 🔒 .gitignore                           # Git ignore rules
 │   └── Ignores: venv, __pycache__, outputs, .env, .idea, etc.
@@ -236,43 +242,41 @@ from ..models import Script, ScriptLine
 
 ---
 
-## 🚀 How to Add New Phases
+## 🚀 Current Implementation Status (All Phases Complete as of 2026-09-27)
 
-### Phase 2: SEO Metadata Agent
+### ✅ Completed Phases
+
+**Phase 1-4:** All agents implemented and fully functional
+- Phase 1: `src/agents/script_generation_agent.py` ✅
+- Phase 2: `src/agents/seo_metadata_agent.py` ✅
+- Phase 3: `src/agents/tts_agent.py` ✅
+- Phase 4A: `src/agents/thumbnail_image_agent.py` ✅ (NEW - split from combined agent)
+- Phase 4B: `src/agents/video_image_agent.py` ✅ (NEW - split from combined agent)
+
+### 🔜 Phase 5: Thumbnail Text Overlay + Video Assembly (PLANNED)
 
 ```
-1. Create src/agents/seo_metadata_agent.py
-   - Function: generate_seo_metadata(script) → SEOMetadata
-   - Uses: Claude API + references/prompts/Title and SEO- prompt.txt
-   
-2. Update src/agents/__init__.py
-   - Add: from .seo_metadata_agent import generate_seo_metadata
-   
+To implement Phase 5:
+
+1. Create src/agents/text_overlay_agent.py
+   - Function: add_thumbnail_text_overlay(thumbnail_path, seo_metadata) → thumbnail_with_text.png
+   - Uses: PIL/Pillow for image manipulation
+   - Input: Generated thumbnail + SEO metadata
+   - Output: Final thumbnail with text overlay ready for upload
+
+2. Create src/agents/video_assembly_agent.py
+   - Function: assemble_video(audio_path, images_path) → output_video.mp4
+   - Uses: FFmpeg wrapper (add to requirements.txt)
+   - Input: audio.mp3 + video_scene.png + (optional) thumbnail_with_text.png
+   - Output: Final MP4 video ready for upload to YouTube
+
 3. Update scripts/cli.py
-   - Add: Call seo_metadata_agent after script_generation_agent
-   
-4. Update docs/PHASE_2_README.md
-   - Document new agent
-```
+   - Add: Call text_overlay_agent after Phase 4
+   - Add: Call video_assembly_agent after Phase 5A
+   - Add: User prompts for enabling/disabling each phase
 
-### Phase 3: TTS Agent
-
-```
-1. Create src/agents/tts_agent.py
-   - Function: generate_tts(script) → AudioFile
-   - Uses: Google Studio API + separate voices for Sarah/Alex
-   
-2. Create src/agents/image_generation_agent.py
-   - Function: generate_images(script) → (thumbnail.png, video_scene.png)
-   - Uses: Claude/ChatGPT API + references/images/
-```
-
-### Phase 4: Video Assembly
-
-```
-1. Create src/agents/video_assembly_agent.py
-   - Function: assemble_video(audio, images) → mp4
-   - Uses: FFmpeg (add to requirements.txt)
+4. Update docs/PHASE_5_README.md
+   - Document new agents and workflow
 ```
 
 ---
@@ -287,14 +291,20 @@ from ..models import Script, ScriptLine
 
 ---
 
-## 📊 Statistics
+## 📊 Statistics (As of 2026-09-27)
 
-- **Total files:** ~20
-- **Python modules:** 5 (config, models, 3 agents)
-- **Documentation:** 4 guides
-- **Tests:** 1 verification script
-- **Lines of code:** ~690 (Phase 1)
-- **Storage:** ~100KB (code only, excluding venv)
+- **Total files:** ~30
+- **Python modules:** 8 (config, models, 5 agents + CLI)
+- **Agents implemented:** 5
+  - Phase 1: Script generation agent
+  - Phase 2: SEO metadata agent
+  - Phase 3: Text-to-speech agent
+  - Phase 4A: Thumbnail image agent (new)
+  - Phase 4B: Video scene image agent (new)
+- **Documentation:** 5+ guides
+- **Tests:** Multiple verification scripts
+- **Lines of code:** ~2000+ (all phases)
+- **Storage:** ~200KB (code only, excluding venv)
 
 ---
 
@@ -357,4 +367,5 @@ Files NOT tracked in git (see `.gitignore`):
 
 ---
 
-Created: 2024 | Language: Python 3.8+ | Framework: Pydantic, Click
+Created: 2024 | Last Updated: 2026-09-27 | Language: Python 3.8+ | Framework: Pydantic, Click
+Status: Phases 1-4 Complete ✅ | Phase 5 Planned

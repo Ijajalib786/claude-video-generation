@@ -20,7 +20,8 @@ from src.models import TopicInput
 from src.agents.script_generation_agent import generate_script, save_script_to_file
 from src.agents.seo_metadata_agent import generate_seo_metadata, save_seo_metadata_to_file
 from src.agents.tts_agent import generate_tts_audio
-from src.agents.image_generation_agent import generate_thumbnail_image, generate_video_scene
+from src.agents.thumbnail_image_agent import generate_thumbnail_image
+from src.agents.video_image_agent import generate_video_scene
 
 class Colors:
     HEADER = '\033[95m'
@@ -174,8 +175,15 @@ def main(topic, context, output):
         if output:
             output_folder = Path(output)
         else:
-            # Create slug from topic
-            slug = topic.lower().replace(" ", "_")[:30]
+            # Create slug from topic - remove invalid filename characters
+            import re
+            slug = topic.lower()
+            # Remove invalid Windows filename characters: ? ! / \ : * " < > |
+            slug = re.sub(r'[?!\/\\:*"<>|]', '', slug)
+            # Replace spaces with underscores
+            slug = slug.replace(" ", "_")
+            # Limit length
+            slug = slug[:50]
             output_folder = config.OUTPUT_DIR / slug
 
         # Save script
