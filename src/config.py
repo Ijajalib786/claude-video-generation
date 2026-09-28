@@ -75,5 +75,31 @@ TTS_AUDIO_FORMAT = "mp3"  # Output format
 TTS_SAMPLE_RATE = 24000  # Sample rate in Hz
 TTS_PARALLEL_THREADS = 2  # Number of parallel synthesis threads (Sarah + Alex)
 
+# Phase 5: Text Overlay Settings
+TEXT_OVERLAY_ENABLED = True
+TEXT_OVERLAY_MODEL = "gpt-image-2.5-sunburst"
+TEXT_OVERLAY_SIZE = "1280x720"  # Must match thumbnail size
+TEXT_OVERLAY_QUALITY = "high"
+
+# Prompt context for Phase 5 - helps AI make intelligent decisions
+TEXT_OVERLAY_CONTEXT = """
+Channel: SPEAK ENGLISH SMARTER (English learning)
+Viewer Context: YouTube mobile feed (375px width)
+
+PRIORITY ORDER:
+1. ANALYZE IMAGE: Identify character positions and available spaces
+2. EYE-CATCHING: Make text grab attention using available space
+3. READABLE: Must be legible on small mobile screens (375px)
+4. PROFESSIONAL: Match brand aesthetic (not garish)
+5. SAFE: Avoid YouTube UI elements (~30px margin from edges)
+
+Strategy: Let the IMAGE COMPOSITION guide text placement.
+Each thumbnail has different character positions.
+Find the best empty space for this specific image.
+"""
+
+MOBILE_VIEWPORT_WIDTH = 375  # Reference width for mobile readability
+YOUTUBE_EDGE_MARGIN = 30     # Pixels from edges to avoid YouTube UI
+
 # Logging
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")

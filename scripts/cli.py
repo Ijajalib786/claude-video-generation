@@ -22,6 +22,7 @@ from src.agents.seo_metadata_agent import generate_seo_metadata, save_seo_metada
 from src.agents.tts_agent import generate_tts_audio
 from src.agents.thumbnail_image_agent import generate_thumbnail_image
 from src.agents.video_image_agent import generate_video_scene
+from src.agents.edit_thumbnail_image import edit_thumbnail_image
 
 class Colors:
     HEADER = '\033[95m'
@@ -259,6 +260,34 @@ def main(topic, context, output):
             print_warning("OPENAI_API_KEY not set - Image generation skipped")
             print_info("To enable images: Set OPENAI_API_KEY in config/.env")
 
+        # Add text overlay to thumbnail (Phase 5)
+        edited_thumbnail_metadata = None
+
+        if thumbnail_metadata and seo_metadata and config.TEXT_OVERLAY_ENABLED:
+            try:
+                print(f"\n{Colors.BOLD}{Colors.OKBLUE}Starting Phase 5: Thumbnail Text Overlay...{Colors.ENDC}")
+
+                thumbnail_path = output_folder / "thumbnail.png"
+                edited_thumbnail_metadata = edit_thumbnail_image(
+                    thumbnail_path,
+                    seo_metadata,
+                    output_folder,
+                    topic=topic,
+                    context=context
+                )
+
+                if edited_thumbnail_metadata:
+                    print(f"\n{Colors.BOLD}{Colors.OKGREEN}=== Thumbnail Text Overlay Complete ==={Colors.ENDC}")
+                    print(f"📝 Text added: '{seo_metadata.thumbnail_text}'")
+                    print(f"🖼️  Edited Thumbnail: {thumbnail_path}")
+
+            except Exception as e:
+                print_warning(f"Thumbnail text overlay error: {e}")
+        elif thumbnail_metadata and not seo_metadata:
+            print_info("Text overlay skipped: No SEO metadata available")
+        elif not thumbnail_metadata:
+            print_info("Text overlay skipped: No thumbnail generated")
+
         # Display complete summary
         print(f"\n{Colors.BOLD}{Colors.OKGREEN}=== Generation Complete ==={Colors.ENDC}")
         print(f"📁 Output folder: {output_folder}")
@@ -274,7 +303,9 @@ def main(topic, context, output):
             print(f"   ✓ audio/tts_metadata.json")
             print(f"   ✓ audio/segmentation_report.txt")
         if thumbnail_metadata:
-            print(f"   ✓ thumbnail.png")
+            print(f"   ✓ thumbnail.png (Phase 4 - no text)")
+        if edited_thumbnail_metadata:
+            print(f"   ✓ thumbnail_with_text.png (Phase 5 - with text overlay)")
         if video_scene_metadata:
             print(f"   ✓ video_scene.png")
 
@@ -290,8 +321,8 @@ def main(topic, context, output):
         print("✅ Phase 2: SEO Metadata - Complete" if seo_path else "⏳ Phase 2: SEO Metadata - Skipped")
         print("✅ Phase 3: Text-to-Speech - Complete" if tts_metadata else "⏳ Phase 3: Text-to-Speech - Skipped")
         print("✅ Phase 4: Image Generation - Complete" if (thumbnail_metadata or video_scene_metadata) else "⏳ Phase 4: Image Generation - Skipped")
-        print("🖼️  Phase 4: Thumbnail generation (coming soon)")
-        print("🎬 Phase 5: Video assembly with FFmpeg (coming soon)")
+        print("✅ Phase 5: Text Overlay - Complete" if edited_thumbnail_metadata else ("⏳ Phase 5: Text Overlay - Skipped" if thumbnail_metadata else "⏳ Phase 5: Text Overlay - Not available"))
+        print("🎬 Phase 6: Video assembly with FFmpeg (coming soon)")
 
         return script
 
