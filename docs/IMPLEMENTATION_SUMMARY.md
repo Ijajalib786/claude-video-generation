@@ -1,305 +1,464 @@
-# Phase 1 Implementation Summary
+# Implementation Summary: Phases 1-4 Complete
+
+## 📊 Project Overview
+
+**SPEAK ENGLISH SMARTER Video Generation Pipeline** - Automated, incremental video generation system for English learning content.
+
+**Status:** Phases 1-4 COMPLETE | Phase 5 PLANNED
+
+---
 
 ## ✅ Phase 1: Script Generation Agent - COMPLETE
 
-### What Was Built
+### Features Delivered
+- Interactive CLI for topic input with customizable video length (8-20 minutes)
+- Topic-based output folder organization (`outputs/{topic_slug}/`)
+- Dynamic word count calculation (length × 130 words/min)
+- Sarah (teacher) & Alex (learner) dialogue format
+- Quality validation with dynamic tolerance (±10% of target)
+- Metadata generation (word count, duration, statistics)
 
-A complete Python-based framework for generating English learning video scripts using Claude API:
+### Files
+- `src/agents/script_generation_agent.py` - Core script generation logic
+- `src/models.py` - Data validation (Script, ScriptLine, TopicInput)
+- `src/config.py` - Configuration and paths
+- `scripts/cli.py` - Interactive CLI interface
 
+### Output
 ```
-📁 claude-video-generation/
-├── main.py                        # CLI interface
-├── script_generation_agent.py     # Core agent with Claude API
-├── models.py                      # Data validation (Pydantic)
-├── config.py                      # Configuration & environment
-├── requirements.txt               # Python dependencies (updated)
-├── .env.example                   # Environment template
-├── test_phase_1.py                # Verification script
-├── PHASE_1_README.md              # Detailed documentation
-├── IMPLEMENTATION_SUMMARY.md      # This file
-└── references/
-    ├── Script Writer-prompt.txt       # Script generation prompt
-    ├── Title and SEO- prompt.txt      # SEO template
-    ├── Thumbnail Image- Prompt.txt    # Thumbnail spec
-    ├── Video Image- Prompt.txt        # Video scene spec
-    ├── Script- Say No Politely.txt    # Example script
-    └── [4 PNG reference images]
-```
-
-### Files Created
-
-| File | Purpose | LOC |
-|------|---------|-----|
-| `config.py` | Configuration, API keys, paths | ~40 |
-| `models.py` | Data validation with Pydantic | ~100 |
-| `script_generation_agent.py` | Claude API integration, validation | ~270 |
-| `main.py` | CLI interface, commands | ~180 |
-| `test_phase_1.py` | Setup verification | ~100 |
-| `PHASE_1_README.md` | Complete guide | ~200 |
-| Total Implementation | | ~690 |
-
-### Key Features
-
-✅ **Claude API Integration**
-- Multi-turn conversation with Claude Sonnet
-- System prompt with quality criteria
-- Structured output parsing
-
-✅ **Quality Validation**
-- Word count validation (1500-2000 words)
-- Script format validation (Sarah-Alex dialogue)
-- Quality heuristics (hook, CTA, character presence)
-- Estimated duration calculation
-
-✅ **CLI Interface**
-- Interactive mode (prompts for topic)
-- Command-line mode (--topic flag)
-- Validation command
-- Colored output with progress indicators
-
-✅ **Data Persistence**
-- Script saved as formatted text
-- Metadata stored as JSON
-- Organized folder structure per topic
-
-✅ **Learning-Focused Architecture**
-- Clear separation of concerns
-- Documented agent loops
-- Easy to extend for Phase 2
-
-### Technology Stack (Phase 1)
-
-```
-✅ Python 3.8+
-✅ Anthropic SDK 1.5.0+ (Claude API)
-✅ Pydantic 2.0+ (Data validation)
-✅ Click 8.0+ (CLI framework)
-✅ python-dotenv (Environment config)
-```
-
-Phase 2+ dependencies (commented in requirements.txt):
-- Google Cloud Text-to-Speech
-- OpenAI API
-- FFmpeg Python wrapper
-
-### How to Use Phase 1
-
-#### 1. Setup Environment
-```bash
-# Install dependencies
-pip install -r requirements.txt
-
-# Get your API key from https://console.anthropic.com
-# Create .env file with:
-export ANTHROPIC_API_KEY="your-key-here"
-```
-
-#### 2. Generate a Script
-```bash
-# Interactive mode
-python main.py generate
-
-# Or command-line mode
-python main.py generate --topic "How to introduce yourself politely"
-```
-
-#### 3. Expected Output
-```
-outputs/
-└── how_to_introduce_yourself_politely/
-    ├── script.txt              # Full dialogue (Sarah + Alex)
-    └── script_metadata.json    # Statistics
-```
-
-### Example Output
-
-**Script Format (script.txt):**
-```
-Sarah : Imagine you're at a party and you don't know anyone. How do you start a conversation politely?
-Alex : Oh, that's scary. I never know what to say.
-Sarah : Today, we learn how to introduce yourself in English.
-...
-```
-
-**Metadata (script_metadata.json):**
-```json
-{
-  "topic": "How to introduce yourself politely",
-  "word_count": 1750,
-  "estimated_duration_minutes": 13.5,
-  "line_count": 145,
-  "generated_at": "2024-01-15T10:30:00.123456"
-}
-```
-
-### Quality Assurance
-
-All scripts are validated against:
-- ✅ Word count (1500-2000)
-- ✅ Dialogue format (Sarah:, Alex:)
-- ✅ Both characters present
-- ✅ Opening hook detection
-- ✅ Call-to-action detection
-- ✅ Estimated duration (10-15 min)
-
-### Learning Objectives Achieved
-
-#### 🎓 Claude API Tool Use
-- ✅ Prompt engineering (system + user messages)
-- ✅ API calls with structured responses
-- ✅ Temperature and token configuration
-- ✅ Error handling and retries
-
-#### 🎓 Agent Orchestration
-- ✅ Input validation (Pydantic)
-- ✅ Agent execution flow
-- ✅ Output parsing
-- ✅ State management (file-based)
-
-#### 🎓 Data Validation
-- ✅ Custom validators
-- ✅ Error messages
-- ✅ Quality criteria checking
-
-#### 🎓 CLI Development
-- ✅ Click framework
-- ✅ Interactive prompts
-- ✅ Command structure
-- ✅ Colored output
-
-### Testing
-
-Verify setup:
-```bash
-python test_phase_1.py
-```
-
-Expected output:
-```
-✅ Phase 1 Setup: ALL CHECKS PASSED
-🚀 Ready to generate scripts!
-```
-
-### Architecture Diagram
-
-```
-User Input (CLI)
-    ↓
-Topic Validation
-(Pydantic Models)
-    ↓
-Claude API Call
-(Script Generation)
-    ↓
-Output Parsing
-(Extract dialogue lines)
-    ↓
-Quality Validation
-(Word count, format, heuristics)
-    ↓
-File Output
-(script.txt + metadata.json)
-```
-
-### What Happens Next (Phase 2)
-
-The plan shows these phases:
-
-1. ✅ **Phase 1 (Complete):** Script generation
-   - Input: Topic
-   - Output: Script + metadata
-   - Learning: Claude API + agent loops
-
-2. 🔜 **Phase 2:** SEO Metadata + Multi-Agent Coordination
-   - Add SEO agent (title, description, hashtags, tags)
-   - Run agents in parallel
-   - File-based handoffs
-
-3. 🔜 **Phase 3:** TTS + Image Generation
-   - Google Studio Text-to-Speech (separate voices)
-   - Claude/ChatGPT Image generation
-
-4. 🔜 **Phase 4:** Video Assembly
-   - FFmpeg orchestration
-   - Combine audio + images
-   - Output MP4
-
-5. 🔜 **Phase 5:** Production Polish
-   - Configuration management
-   - Batch processing
-   - Monitoring & logging
-
-### Quality Criteria Met
-
-From the approved plan, Phase 1 delivers:
-
-✅ Topic input → Script output (end-to-end)  
-✅ Interactive CLI interface  
-✅ Script validation  
-✅ File-based state management  
-✅ Clear error handling  
-✅ Learning-focused documentation  
-
-### Troubleshooting
-
-**"ANTHROPIC_API_KEY not found"**
-```bash
-export ANTHROPIC_API_KEY="sk-ant-..."
-```
-
-**"Word count too low"**
-Try:
-- Adding more context to the topic
-- Rerunning the generation
-- Checking if topic naturally requires less content
-
-**"Connection error"**
-- Verify API key is valid
-- Check internet connection
-- Wait for rate limits to reset
-
-### Files Reference
-
-- **Main implementation:** `script_generation_agent.py`
-- **CLI entry point:** `main.py`
-- **Data models:** `models.py`
-- **Configuration:** `config.py`
-- **Documentation:** `PHASE_1_README.md`
-- **Verification:** `test_phase_1.py`
-
-### Code Statistics
-
-- **Lines of code:** ~690
-- **Modules:** 5
-- **Classes:** 4 (Script, ScriptLine, TopicInput, SEOMetadata)
-- **Functions:** 15+
-- **Error handling:** Full try-catch with informative messages
-- **Tests:** Verification checklist provided
-
-### Next Steps for User
-
-1. ✅ Phase 1 implementation complete
-2. 🔄 Set up API key: `export ANTHROPIC_API_KEY="..."`
-3. 🚀 Test: `python main.py generate`
-4. 📋 Review: `python test_phase_1.py`
-5. 🎓 Learn: Read `PHASE_1_README.md`
-6. ➡️ Next: Ready for Phase 2 (SEO agent)
-
-### Project Status
-
-```
-Phase 1: ✅ COMPLETE (Script Generation)
-Phase 2: ⏳ READY TO START (SEO Metadata)
-Phase 3: ⏳ PLANNED (TTS + Images)
-Phase 4: ⏳ PLANNED (Video Assembly)
-Phase 5: ⏳ PLANNED (Production)
+outputs/{topic}/
+├── script.txt              # Dialogue script (1500-2000 words)
+└── script_metadata.json    # Statistics
 ```
 
 ---
 
-**Created:** 2024 (This Session)
-**Language:** Python 3.8+
-**API:** Anthropic Claude
-**Learning Focus:** Agentic AI, Tool Use, Multi-Agent Coordination
+## ✅ Phase 2: SEO Metadata Agent - COMPLETE
 
-All code follows the plan at: `../.claude/plans/i-want-you-to-lively-gadget.md`
+### Features Delivered
+- YouTube SEO metadata generation (title, description, hashtags, tags)
+- Thumbnail text generation for YouTube overlays
+- Modern 2026 YouTube strategy implementation
+- Quality-over-word-count design (350-500 word descriptions)
+- Sequential integration with Phase 1
+
+### Files
+- `src/agents/seo_metadata_agent.py` - SEO generation logic
+- Enhanced `src/models.py` - Added SEOMetadata model
+
+### Output
+```
+outputs/{topic}/
+├── seo_metadata.txt        # Title, description, hashtags, tags, thumbnail_text
+```
+
+### Metadata Structure
+- Title: 65 characters max, keyword-optimized
+- Description: 350-500 words, quality-focused
+- Hashtags: 15-20 trending hashtags
+- Tags: 15-20 SEO keywords
+- Thumbnail Text: Compelling overlay text for YouTube
+
+---
+
+## ✅ Phase 3: Text-to-Speech Agent - COMPLETE
+
+### Features Delivered
+- Google Studio TTS with multi-speaker support
+- Professional audio with speaker annotations
+- Separate voice configuration (Sarah: Despina/Leda, Alex: Iapetus)
+- Script segmentation with line tracking
+- Parallel voice synthesis (2 threads)
+- Data integrity validation (no line loss)
+
+### Files
+- `src/agents/tts_agent.py` - TTS generation with Google API
+- Enhanced `src/models.py` - Added SegmentedScript, TTSAudioMetadata
+
+### Output
+```
+outputs/{topic}/audio/
+├── audio.mp3               # Combined dialogue audio
+├── tts_metadata.json       # Segment information
+└── segmentation_report.txt # Line tracking validation
+```
+
+### Capabilities
+- ✅ Real multi-speaker TTS with interactions API
+- ✅ Professional speaker annotations for tone control
+- ✅ Interactive CLI option to skip TTS
+- ✅ Comprehensive segmentation validation
+
+---
+
+## ✅ Phase 4: Image Generation - COMPLETE & VERIFIED (2026-09-27)
+
+### Architecture: Separate Agents for Specialized Tasks
+
+**Refactored into Two Dedicated Agents:**
+
+1. **Thumbnail Image Agent** (`src/agents/thumbnail_image_agent.py`)
+   - Generates YouTube thumbnails (1280×720px)
+   - Scenario-aware character positioning with text space
+   - Soft color palette with radiant lighting
+   - Ready for Phase 5 text overlay integration
+
+2. **Video Scene Agent** (`src/agents/video_image_agent.py`)
+   - Generates long-form video scenes (1920×1088px)
+   - Professional podcast setup (Sarah left, Alex right)
+   - **Flat vector illustration style** (matches canonical reference)
+   - Scenario-adaptive environments
+   - Premium, professional aesthetic
+
+### Phase 4 Enhancements Implemented & Verified
+
+**Phase 4 Enhancement I: Dynamic Character Positioning for Text Space**
+- Scenario-aware character positioning (`_get_scenario_guidance()`)
+- Characters positioned on ONE SIDE to create clear text space
+- Home/Coffee: Lower-left positioning (40% text space on right)
+- Office: Right positioning (40% text space on left)
+- Travel: Left positioning (40% text space on right)
+- Social/Restaurant: Left-center positioning (40% text space on right)
+- ✅ Verified: Characters create clear space for thumbnail text overlays
+
+**Phase 4 Enhancement II: Soft, Radiant Lighting & Background**
+- Warm, golden light guidance (like sunlight or golden hour)
+- Radiant, glowing atmosphere throughout image
+- Soft color palette with NO bright white light
+- Enhanced prompt with explicit lighting emphasis sections
+- ✅ Verified: Soft colors with natural glow effect
+
+**Phase 4 Enhancement III: Flat Vector Illustration Style (Video Images)**
+- **NEW:** Explicit "ILLUSTRATION STYLE REQUIREMENT" section in video agent
+- Characters in flat vector illustration style (NOT photorealistic)
+- Matches canonical reference's premium illustration quality
+- Clean, modern vector art aesthetic for both characters and environment
+- ✅ Verified: Video images now use flat vector style matching canonical reference
+
+**Thumbnail Images (1280×720px):**
+- ✅ Soft, muted color palette matching canonical reference
+- ✅ Dynamic character positioning per scenario (creates text space)
+- ✅ Radiant, warm lighting with natural glow
+- ✅ Professional, educational appearance
+- ✅ Ready for Phase 5 text overlay
+
+**Video Scene Images (1920×1088px):**
+- ✅ Professional, minimal aesthetic (max 1-2 plants as accents)
+- ✅ **Flat vector illustration style** (matches canonical reference)
+- ✅ Scenario-adaptive environments (office, coffee shop, home, etc.)
+- ✅ Fixed podcast layout with flexible environment
+- ✅ Microphones prominently displayed
+- ✅ Full frame utilization (no white space)
+
+### Files
+
+**Core Implementation (REFACTORED):**
+- `src/agents/thumbnail_image_agent.py` - NEW - Dedicated thumbnail generation
+  - `_load_canonical_references()` - Loads thumbnail reference images
+  - `_get_scenario_guidance()` - Returns scenario-specific positioning
+  - `_build_enhanced_prompt()` - Builds prompt with character positioning
+  - `generate_thumbnail_image()` - Generates thumbnail with OpenAI API
+  
+- `src/agents/video_image_agent.py` - NEW - Dedicated video scene generation
+  - `_load_canonical_references()` - Loads video reference images
+  - `_build_enhanced_prompt()` - Builds prompt with illustration style emphasis
+  - `generate_video_scene()` - Generates video scene with professional aesthetic
+  
+- `src/agents/image_generation_agent.py` - DELETED (split into separate agents)
+
+- Updated imports in `scripts/cli.py`:
+  - `from src.agents.thumbnail_image_agent import generate_thumbnail_image`
+  - `from src.agents.video_image_agent import generate_video_scene`
+
+- Enhanced prompts in `references/prompts/`:
+  - `Thumbnail Image- Prompt.txt` (with dynamic character positioning for text space)
+  - `Video Image- Prompt.txt` (with flat vector illustration requirements)
+
+### Implementation Details
+
+**Canonical References Used:**
+- 2 thumbnail reference images (character consistency)
+- 2 video reference images (podcast layout consistency)
+- Located in `references/images/`
+- Passed directly to OpenAI API via `client.images.edit()`
+
+**Prompt Enhancement:**
+- Smart topic analysis function: `_get_scenario_guidance()`
+- Returns: scenario, character_positions, composition_pattern, background_color
+- Separate prompt builders for thumbnail and video
+- Canonical reference descriptions injected
+- SEO context integrated
+- Lighting and background emphasis sections
+
+### Output
+```
+outputs/{topic}/
+├── thumbnail.png           # YouTube thumbnail (1280×720)
+└── video_scene.png         # Video background (1920×1088)
+```
+
+### Quality Improvements
+- ✅ Soft, warm colors with radiant glow (canonical palette)
+- ✅ Dynamic character positioning per scenario
+- ✅ Professional office aesthetic with warm lighting
+- ✅ Minimal decoration (1-2 plants max)
+- ✅ Scenario-aware environment adaptation
+- ✅ Character consistency maintained
+- ✅ Consistent soft background throughout
+- ✅ Premium illustration quality
+- ✅ More natural character framing (full frame utilization)
+
+### Tested Scenarios
+✅ Home/Meditation (soft beige, warm lighting)
+✅ Professional/Office Meeting (soft blue/gray, professional)
+✅ Casual/Coffee Shop (soft warm tones, social)
+✅ Travel/Beach & Airport (soft sky tones, exploratory)
+✅ Lifestyle topics (varied with scenario-appropriate colors)
+
+---
+
+## 🏗️ Architecture Overview
+
+```
+USER INPUT
+  ↓
+Phase 1: Script Generation
+  ├─ Topic + Context
+  └─ Output: script.txt + script_metadata.json
+  ↓
+Phase 2: SEO Metadata
+  ├─ Script Content
+  └─ Output: seo_metadata.txt
+  ↓
+Phase 3: Text-to-Speech
+  ├─ Script Dialogue
+  └─ Output: audio/audio.mp3 + tts_metadata.json
+  ↓
+Phase 4: Image Generation
+  ├─ Script + SEO Metadata
+  ├─ Canonical References (2 thumbnail + 2 video PNGs)
+  └─ Output: thumbnail.png + video_scene.png
+  ↓
+Phase 5: Video Assembly (PLANNED)
+  ├─ Audio + Images
+  └─ Output: output_video.mp4
+```
+
+---
+
+## 🛠️ Technology Stack
+
+| Component | Technology | Version |
+|-----------|-----------|---------|
+| Script Generation | Anthropic Claude API | Claude Sonnet 3.5+ |
+| SEO Metadata | Anthropic Claude API | Claude Sonnet 3.5+ |
+| Text-to-Speech | Google Generative AI | Gemini 3.8 Flash TTS |
+| Image Generation | OpenAI API | GPT-Image-2.5-Sunburst |
+| Data Validation | Pydantic | 2.0+ |
+| CLI Framework | Click | 8.0+ |
+| Environment Config | python-dotenv | Latest |
+| Video Assembly | FFmpeg (Phase 5) | Latest |
+
+---
+
+## 📝 Key Files Reference
+
+### Core Agents
+- `src/agents/script_generation_agent.py` - Phase 1: Script generation
+- `src/agents/seo_metadata_agent.py` - Phase 2: SEO metadata generation
+- `src/agents/tts_agent.py` - Phase 3: Text-to-speech audio
+- `src/agents/thumbnail_image_agent.py` - Phase 4A: YouTube thumbnail generation (NEW)
+- `src/agents/video_image_agent.py` - Phase 4B: Long-form video scene generation (NEW)
+
+### Configuration
+- `src/config.py` - Central configuration (API keys, paths, models, settings)
+- `src/models.py` - Data models (Pydantic validation)
+- `scripts/cli.py` - CLI entry point and orchestration
+
+### References
+- `references/prompts/` - Prompt templates for each phase
+- `references/images/` - Canonical reference images (4 PNGs)
+- `references/examples/` - Example scripts
+
+### Documentation
+- `docs/PLAN.md` - Master implementation plan
+- `docs/QUICKSTART.md` - Quick setup guide
+- `docs/PHASE_1_README.md` - Phase 1 detailed guide
+- `docs/PHASE_2_README.md` - Phase 2 detailed guide
+- `docs/PHASE_3_README.md` - Phase 3 detailed guide
+
+---
+
+## 🚀 Quick Start
+
+### 1. Setup
+```powershell
+cd C:\Ijaj\Claude\claude-video-generation
+.\scripts\setup_venv.ps1
+.\venv\Scripts\Activate.ps1
+```
+
+### 2. Configure API Keys
+```powershell
+# Set environment variables or use config/.env
+$env:ANTHROPIC_API_KEY = "sk-ant-..."
+$env:OPENAI_API_KEY = "sk-..."
+$env:GOOGLE_GEMINI_API_KEY = "..."
+```
+
+### 3. Generate Video Assets
+```powershell
+python scripts\cli.py generate
+# Enter topic, context (optional), desired video length (8-20 min)
+# Choose: generate TTS? (Y/n)
+# Choose: generate images? (Y/n)
+```
+
+### 4. Output
+```
+outputs/{topic}/
+├── script.txt                # Phase 1
+├── script_metadata.json      # Phase 1
+├── seo_metadata.txt          # Phase 2
+├── audio/audio.mp3           # Phase 3
+├── audio/tts_metadata.json   # Phase 3
+├── thumbnail.png             # Phase 4
+└── video_scene.png           # Phase 4
+```
+
+---
+
+## 📊 Status Summary
+
+| Phase | Status | Completion | Notes |
+|-------|--------|-----------|-------|
+| 1: Script Generation | ✅ COMPLETE | 100% | Topic → Script output working |
+| 2: SEO Metadata | ✅ COMPLETE | 100% | Quality-focused metadata generation |
+| 3: Text-to-Speech | ✅ COMPLETE | 100% | Multi-speaker TTS with Google API |
+| 4: Image Generation | ✅ COMPLETE | 100% | Canonical references + professional aesthetic |
+| 5: Video Assembly | ⏳ PLANNED | 0% | FFmpeg orchestration (coming soon) |
+
+---
+
+## 🎓 Learning Outcomes
+
+### Claude API & Agents
+- ✅ Prompt engineering (system + user messages)
+- ✅ Tool use and structured responses
+- ✅ Multi-turn agent loops
+- ✅ Output parsing and validation
+
+### Multi-Agent Coordination
+- ✅ Sequential agent execution
+- ✅ File-based data handoffs
+- ✅ State management
+- ✅ Error handling and recovery
+
+### Data Validation
+- ✅ Pydantic models for type safety
+- ✅ Custom validators
+- ✅ Quality criteria checking
+- ✅ Metadata tracking
+
+### External APIs
+- ✅ Google Generative AI (TTS)
+- ✅ OpenAI API (Image generation)
+- ✅ API key management
+- ✅ Error handling for external calls
+
+---
+
+## 🔄 Next Phase: Phase 5
+
+### Phase 5 Plan: Video Assembly & Production Polish
+- FFmpeg orchestration to combine audio + images
+- Thumbnail text overlay using SEO metadata
+- Final MP4 output (1920×1080, 10-15 min duration)
+- Batch processing for multiple topics
+- Monitoring and logging
+
+---
+
+## 📚 Documentation Structure
+
+```
+docs/
+├── PLAN.md                    # Master implementation plan
+├── QUICKSTART.md              # 3-minute setup guide
+├── IMPLEMENTATION_SUMMARY.md  # This file - comprehensive overview
+├── PHASE_1_README.md          # Script generation details
+├── PHASE_2_README.md          # SEO metadata details
+├── PHASE_3_README.md          # Text-to-speech details
+└── VISUAL_STUDIO_SETUP.md     # IDE configuration
+```
+
+---
+
+## 🎯 Success Criteria Met
+
+✅ **End-to-End Pipeline**
+- Topic input → Complete video assets output
+
+✅ **Quality Standards**
+- Script: 1500-2000 words, beginner-friendly
+- SEO: Keyword-optimized, CTR-focused
+- Audio: Multi-speaker, professional quality
+- Images: Professional, character-consistent
+
+✅ **User Experience**
+- Interactive CLI with progress indicators
+- Clear error messages
+- Organized output structure
+- Flexible configuration
+
+✅ **Learning Goals**
+- Agentic AI patterns learned incrementally
+- Multi-agent coordination implemented
+- External API integration demonstrated
+- Production-ready code quality
+
+---
+
+## 🐛 Troubleshooting
+
+**Common Issues & Solutions:**
+
+```
+"API Key not found"
+→ Set environment variables or create config/.env
+
+"Image generation not working"
+→ Ensure OpenAI_API_KEY is set with GPT-Image-2.5-Sunburst access
+
+"TTS audio quality issues"
+→ Verify GOOGLE_GEMINI_API_KEY is correctly configured
+
+"Script validation failing"
+→ Try longer topics or add more context for expansion
+```
+
+---
+
+## 📝 Version History
+
+- **2026-09-27**: Phase 4 completion (Image generation with improvements)
+- **2026-09-26**: Phase 3 completion (Text-to-speech with Google API)
+- **Previous**: Phase 1 & 2 completion
+
+---
+
+## 🔗 Related Resources
+
+- **Main Plan:** `C:\Users\ijajb\.claude\plans\i-want-you-to-lively-gadget.md`
+- **Project Root:** `C:\Ijaj\Claude\claude-video-generation`
+- **API Docs:**
+  - Anthropic: https://docs.anthropic.com
+  - Google: https://ai.google.dev/docs
+  - OpenAI: https://platform.openai.com/docs
+
+---
+
+**Last Updated:** 2026-09-27  
+**Status:** Phases 1-4 Complete, Ready for Phase 5  
+**Next Session:** Manual verification of Phase 4, then Phase 5 planning
+

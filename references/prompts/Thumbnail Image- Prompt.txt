@@ -314,33 +314,97 @@ Use only a few meaningful objects.
 Avoid distractions.
 
 ════════════════════════════════════
-9. TEXT AREA
+9. CHARACTER COMPOSITION PATTERNS (DYNAMIC)
 ════════════════════════════════════
 
-Reserve clean space for adding thumbnail text.
+Character placement varies by scenario. DO NOT always position characters the same way.
 
-AUTO
-Choose the strongest layout automatically.
+AVAILABLE COMPOSITION PATTERNS:
 
-LEFT
-Reserve about 40% of the left side.
+Lower-Centered (Home/Casual/Breakfast Scenes)
+  • Both characters positioned naturally in frame
+  • Creates inviting, cozy feeling
+  • Example: Morning routine, home scenes, casual conversations
 
-RIGHT
-Reserve about 40% of the right side.
+Right-Positioned (Office/Professional Scenes)
+  • Characters positioned naturally in frame
+  • Professional spacing and layout
+  • Example: Office, interviews, business meetings
 
-TOP
-Reserve about 30% of the top.
+Left-Right-Split (Travel/Outdoor Scenes)
+  • Sarah on left side, Alex on right side
+  • Creates balanced, exploratory composition
+  • Example: Airport, beach, travel adventures
 
-BOTTOM
-Reserve about 30% of the bottom.
+Left-Positioned (Restaurant/Social Scenes)
+  • Both characters on left side of frame
+  • Warm, social composition
+  • Example: Coffee shop, restaurant, party, dining
 
-CENTER
-Reserve a clean center area for short titles only.
-
-Never place characters or important objects inside the reserved text area.
+Dynamic-Positioned (Shopping/Activity Scenes)
+  • Characters positioned in center area
+  • Energetic but balanced composition
+  • Example: Shopping, gym, activities, hobbies
 
 ════════════════════════════════════
-10. COMPOSITION
+10. CONSISTENT SOFT BACKGROUND (FOR FLEXIBLE TEXT PLACEMENT)
+════════════════════════════════════
+
+Create a CONSISTENT, SOFT background throughout the ENTIRE image.
+
+CRITICAL: Background should be uniform, soft, and non-busy - NOT reserved white space areas.
+
+BACKGROUND COLOR BY SCENARIO:
+
+Home / Casual Scenes
+  → Soft beige/cream background throughout
+  → Warm, inviting, cozy atmosphere
+  → Consistent soft color fills entire frame
+  → Example: Morning routine, home scenes, casual conversations
+
+Office / Professional Scenes
+  → Soft blue/gray background throughout
+  → Professional, calm, focused atmosphere
+  → Consistent soft color fills entire frame
+  → Example: Office, interviews, business meetings
+
+Travel / Outdoor Scenes
+  → Soft sky/cloud tones background throughout
+  → Natural, exploratory, open atmosphere
+  → Consistent soft color fills entire frame
+  → Example: Airport, beach, travel, outdoor scenes
+
+Restaurant / Social Scenes
+  → Soft warm/amber background throughout
+  → Inviting, cozy, social atmosphere
+  → Consistent soft color fills entire frame
+  → Example: Coffee shop, restaurant, party, dining
+
+Shopping / Activity Scenes
+  → Soft neutral tones background throughout
+  → Energetic but balanced atmosphere
+  → Consistent soft color fills entire frame
+  → Example: Shopping, gym, activities, hobbies
+
+CRITICAL REQUIREMENTS FOR CONSISTENT BACKGROUND:
+• Create CONSISTENT soft background throughout ENTIRE image
+• NO reserved white space areas or empty regions
+• Characters positioned naturally within full frame
+• Soft background ensures text readability when placed anywhere
+• Background color follows scenario tone (beige, blue/gray, sky, warm, neutral)
+• Full creative flexibility for character positioning
+• More space for natural, professional character framing
+
+WHY THIS WORKS:
+• Entire image is usable for composition and text overlay
+• No artificial empty areas or white cutouts
+• Text can be placed flexibly anywhere on soft background
+• Characters have full frame for natural, expressive positioning
+• Simpler, cleaner visual approach
+• More professional, natural-looking thumbnails
+
+════════════════════════════════════
+11. COMPOSITION
 ════════════════════════════════════
 
 • 16:9 aspect ratio
@@ -354,32 +418,85 @@ Never place characters or important objects inside the reserved text area.
 The thumbnail should tell the story even without text.
 
 ════════════════════════════════════
-11. LIGHTING & COLORS
+12. LIGHTING & COLORS
 ════════════════════════════════════
 
-Lighting
+Lighting & Radiance
 
-• Bright
-• Warm
-• Soft
-• Natural shadows
-• Faces are the brightest element
+CRITICAL: Use SOFT COLORED light (matching scenario), NEVER bright white light
 
-Color Palette
+• Soft, colored light source (NOT bright white)
+• Light matches scenario's soft color palette (beige, blue, sky, warm, neutral)
+• Soft, natural lighting with visible glow effects
+• Soft shadows from light (add depth and dimension)
+• Faces are well-lit but natural elements
+• Light blends with background naturally (no harsh bright spots)
+• Overall feeling: soft glow, peaceful, inviting, radiant
 
-• Soft Blue
-• Pastel Green
-• Warm Yellow
-• Cream White
-• Warm Beige
-• Muted Orange
-• Light Gray
+Soft Light Colors BY SCENARIO:
 
-Bright educational colors.
-Never oversaturated.
+Home / Casual Scenarios
+  → SOFT CREAM/BEIGE light (like warm morning light through window)
+  → Light creates gentle warmth and glow
+  → NOT bright white - soft and warm
+
+Office / Professional Scenarios
+  → SOFT BLUE/GRAY light (like soft office ambient light)
+  → Light feels calm and professional
+  → NOT bright white - soft and balanced
+
+Travel / Outdoor Scenarios
+  → SOFT SKY/CLOUD light (like soft outdoor light)
+  → Light feels natural and pleasant
+  → NOT bright white - soft sky tones
+
+Restaurant / Social Scenarios
+  → SOFT WARM/AMBER light (like soft restaurant lighting)
+  → Light creates inviting, cozy atmosphere
+  → NOT bright white - warm and gentle
+
+Shopping / Activity Scenarios
+  → SOFT NEUTRAL light (like soft ambient light)
+  → Light supports activity naturally
+  → NOT bright white - soft and supportive
+
+Light Quality Requirements:
+✓ Soft glow on surfaces (walls, props, faces)
+✓ Soft color temperature matching scenario
+✓ Light creates depth and dimension naturally
+✓ Everything gently illuminated (NOT brightly lit)
+✓ Light blends naturally with background
+✗ NO harsh white light
+✗ NO bright light spots
+✗ NO overexposed areas
+
+Color Palette (SOFT & CALM TONES)
+
+PRIMARY PALETTE:
+• Soft Blue (muted, calm, educational)
+• Pastel Green (soft, natural, inviting)
+• Warm Yellow (gentle, not neon)
+• Cream White (soft background)
+• Warm Beige (earthy, calm)
+• Muted Orange (soft, warm)
+• Light Gray (neutral, professional)
+
+CRITICAL COLOR REQUIREMENTS:
+✓ Use SOFT, MUTED tones (like the sample reference)
+✓ Colors should feel calm and inviting, not energetic or bright
+✓ NO oversaturated or neon colors
+✓ NO bright primary colors (use pastel/muted versions)
+✓ Overall aesthetic: warm, educational, professional, friendly
+
+COLOR TONE EXAMPLES:
+GOOD (Soft):  Soft blue (#87CEEB), Pastel green (#98D98E), Warm beige (#F5E6D3)
+BAD (Bright): Bright blue (#0000FF), Neon green (#00FF00), Harsh orange (#FF6600)
+
+The entire image should feel like a premium educational thumbnail.
+Avoid oversaturation at all costs.
 
 ════════════════════════════════════
-12. STRICT RULES
+13. STRICT RULES
 ════════════════════════════════════
 
 Exactly TWO characters only.

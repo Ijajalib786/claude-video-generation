@@ -1,9 +1,9 @@
 #!/usr/bin/env python3
 """
 SPEAK ENGLISH SMARTER - Video Generation Pipeline
-Phase 1: Script Generation Agent
+Phase 1, 2 & 3: Script Generation + SEO Metadata + Text-to-Speech
 
-Interactive CLI for generating English learning video scripts.
+Interactive CLI for generating English learning video scripts, metadata, and audio.
 """
 
 import click
@@ -18,6 +18,11 @@ sys.path.insert(0, str(Path(__file__).parent.parent))
 from src import config
 from src.models import TopicInput
 from src.agents.script_generation_agent import generate_script, save_script_to_file
+from src.agents.seo_metadata_agent import generate_seo_metadata, save_seo_metadata_to_file
+from src.agents.tts_agent import generate_tts_audio
+from src.agents.thumbnail_image_agent import generate_thumbnail_image
+from src.agents.video_image_agent import generate_video_scene
+from src.agents.edit_thumbnail_image import edit_thumbnail_image
 
 class Colors:
     HEADER = '\033[95m'
@@ -35,7 +40,7 @@ def print_header():
     print(f"\n{Colors.HEADER}{Colors.BOLD}")
     print("=" * 60)
     print("  SPEAK ENGLISH SMARTER - Video Generation Pipeline")
-    print("  Phase 1: Script Generation Agent")
+    print("  Phase 1: Script Generation | Phase 2: SEO Metadata")
     print("=" * 60)
     print(f"{Colors.ENDC}")
 
@@ -72,6 +77,30 @@ def get_video_length_input():
                 print_warning(f"Please enter a value between 8 and 20 minutes")
         except ValueError:
             print_warning("Please enter a valid number")
+
+def get_skip_tts_input():
+    """Ask user if they want to skip TTS generation."""
+    while True:
+        response = input(f"{Colors.OKBLUE}Generate TTS audio? (Y/n, default: yes): {Colors.ENDC}").strip().lower()
+
+        if not response or response == 'y' or response == 'yes':
+            return False  # Don't skip TTS
+        elif response == 'n' or response == 'no':
+            return True  # Skip TTS
+        else:
+            print_warning("Please enter 'y' or 'n'")
+
+def get_skip_images_input():
+    """Ask user if they want to skip image generation."""
+    while True:
+        response = input(f"{Colors.OKBLUE}Generate images (thumbnail + video scene)? (Y/n, default: yes): {Colors.ENDC}").strip().lower()
+
+        if not response or response == 'y' or response == 'yes':
+            return False  # Don't skip images
+        elif response == 'n' or response == 'no':
+            return True  # Skip images
+        else:
+            print_warning("Please enter 'y' or 'n'")
 
 @click.command()
 @click.option('--topic', prompt=False, default=None, help='Video topic')
@@ -113,6 +142,20 @@ def main(topic, context, output):
     # Note: Actual tolerance is ±35% to account for natural variation in script generation
     print_success(f"Target: {video_length_minutes} minutes (~{target_words} words)")
 
+    # Ask if user wants TTS
+    skip_tts = get_skip_tts_input()
+    if skip_tts:
+        print_info("TTS generation will be skipped")
+    else:
+        print_info("TTS audio will be generated")
+
+    # Ask if user wants images (Phase 4)
+    skip_images = get_skip_images_input()
+    if skip_images:
+        print_info("Image generation will be skipped")
+    else:
+        print_info("Images (thumbnail + video scene) will be generated")
+
     # Create topic input
     try:
         topic_input = TopicInput(
@@ -133,30 +176,153 @@ def main(topic, context, output):
         if output:
             output_folder = Path(output)
         else:
-            # Create slug from topic
-            slug = topic.lower().replace(" ", "_")[:30]
+            # Create slug from topic - remove invalid filename characters
+            import re
+            slug = topic.lower()
+            # Remove invalid Windows filename characters: ? ! / \ : * " < > |
+            slug = re.sub(r'[?!\/\\:*"<>|]', '', slug)
+            # Replace spaces with underscores
+            slug = slug.replace(" ", "_")
+            # Limit length
+            slug = slug[:50]
             output_folder = config.OUTPUT_DIR / slug
 
         # Save script
         script_path = save_script_to_file(script, output_folder)
 
-        # Display summary
-        print(f"\n{Colors.BOLD}{Colors.OKGREEN}=== Script Generation Complete ==={Colors.ENDC}")
+        # Generate SEO metadata (Phase 2)
+        seo_path = None
+        seo_metadata = None
+        tts_metadata = None
+        try:
+            seo_metadata = generate_seo_metadata(script, topic_input)
+            seo_path = save_seo_metadata_to_file(seo_metadata, output_folder)
+
+            # Display SEO summary
+            print(f"\n{Colors.BOLD}{Colors.OKGREEN}=== SEO Metadata Generated ==={Colors.ENDC}")
+            print(f"📌 Title: {seo_metadata.title}")
+            print(f"🎯 Thumbnail Text: {seo_metadata.thumbnail_text}")
+            print(f"#️⃣  Hashtags: {' '.join(seo_metadata.hashtags[:5])} ... (+15 more)")
+            print(f"🏷️  Tags: {', '.join(seo_metadata.tags[:5])} ... (+15 more)")
+            print(f"📄 Description: {seo_metadata.description[:150]}...")
+        except Exception as e:
+            print_warning(f"SEO generation skipped: {e}")
+            seo_path = None
+
+        # Generate TTS audio (Phase 3)
+        try:
+            if skip_tts:
+                print_info("TTS generation skipped by user (--skip-tts flag)")
+            elif config.GOOGLE_GEMINI_API_KEY:
+                print(f"\n{Colors.BOLD}{Colors.OKBLUE}Starting Phase 3: Text-to-Speech Generation...{Colors.ENDC}")
+                tts_metadata = generate_tts_audio(script, output_folder)
+
+                # Display TTS summary
+                print(f"\n{Colors.BOLD}{Colors.OKGREEN}=== TTS Audio Generated ==={Colors.ENDC}")
+                print(f"🔊 Total Duration: {tts_metadata.total_duration_seconds:.1f}s")
+                print(f"   - Sarah: {tts_metadata.sarah_duration_seconds:.1f}s")
+                print(f"   - Alex: {tts_metadata.alex_duration_seconds:.1f}s")
+                print(f"🎯 Segments: {tts_metadata.total_segments_processed}")
+                print(f"📁 Audio folder: {output_folder / 'audio'}")
+            else:
+                print_warning("GOOGLE_GEMINI_API_KEY not set - TTS skipped")
+                print_info("To enable TTS: Set GOOGLE_GEMINI_API_KEY in config/.env")
+        except Exception as e:
+            print_warning(f"TTS generation skipped: {e}")
+            tts_metadata = None
+
+        # Generate images (Phase 4)
+        thumbnail_metadata = None
+        video_scene_metadata = None
+
+        if skip_images:
+            print_info("Image generation skipped by user")
+        elif config.OPENAI_API_KEY:
+            try:
+                print(f"\n{Colors.BOLD}{Colors.OKBLUE}Starting Phase 4: Image Generation...{Colors.ENDC}")
+
+                # Generate thumbnail with context
+                thumbnail_metadata = generate_thumbnail_image(script, seo_metadata if seo_metadata else None, output_folder, context=context)
+
+                # Generate video scene with context
+                video_scene_metadata = generate_video_scene(script, seo_metadata if seo_metadata else None, output_folder, context=context)
+
+                if thumbnail_metadata or video_scene_metadata:
+                    print(f"\n{Colors.BOLD}{Colors.OKGREEN}=== Images Generated ==={Colors.ENDC}")
+                    if thumbnail_metadata:
+                        print(f"🖼️  Thumbnail: {output_folder / 'thumbnail.png'}")
+                    if video_scene_metadata:
+                        print(f"🎬 Video Scene: {output_folder / 'video_scene.png'}")
+
+            except Exception as e:
+                print_warning(f"Image generation error: {e}")
+        else:
+            print_warning("OPENAI_API_KEY not set - Image generation skipped")
+            print_info("To enable images: Set OPENAI_API_KEY in config/.env")
+
+        # Add text overlay to thumbnail (Phase 5)
+        edited_thumbnail_metadata = None
+
+        if thumbnail_metadata and seo_metadata and config.TEXT_OVERLAY_ENABLED:
+            try:
+                print(f"\n{Colors.BOLD}{Colors.OKBLUE}Starting Phase 5: Thumbnail Text Overlay...{Colors.ENDC}")
+
+                thumbnail_path = output_folder / "thumbnail.png"
+                edited_thumbnail_metadata = edit_thumbnail_image(
+                    thumbnail_path,
+                    seo_metadata,
+                    output_folder,
+                    topic=topic,
+                    context=context
+                )
+
+                if edited_thumbnail_metadata:
+                    print(f"\n{Colors.BOLD}{Colors.OKGREEN}=== Thumbnail Text Overlay Complete ==={Colors.ENDC}")
+                    print(f"📝 Text added: '{seo_metadata.thumbnail_text}'")
+                    print(f"🖼️  Edited Thumbnail: {thumbnail_path}")
+
+            except Exception as e:
+                print_warning(f"Thumbnail text overlay error: {e}")
+        elif thumbnail_metadata and not seo_metadata:
+            print_info("Text overlay skipped: No SEO metadata available")
+        elif not thumbnail_metadata:
+            print_info("Text overlay skipped: No thumbnail generated")
+
+        # Display complete summary
+        print(f"\n{Colors.BOLD}{Colors.OKGREEN}=== Generation Complete ==={Colors.ENDC}")
         print(f"📁 Output folder: {output_folder}")
-        print(f"📝 Script file: {script_path.name}")
-        print(f"📊 Statistics:")
+        print(f"📝 Files created:")
+        print(f"   ✓ script.txt")
+        print(f"   ✓ script_metadata.json")
+        if seo_path:
+            print(f"   ✓ seo_metadata.txt")
+        if tts_metadata:
+            print(f"   ✓ audio/sarah_audio.mp3")
+            print(f"   ✓ audio/alex_audio.mp3")
+            print(f"   ✓ audio/combined_audio.mp3")
+            print(f"   ✓ audio/tts_metadata.json")
+            print(f"   ✓ audio/segmentation_report.txt")
+        if thumbnail_metadata:
+            print(f"   ✓ thumbnail.png (Phase 4 - no text)")
+        if edited_thumbnail_metadata:
+            print(f"   ✓ thumbnail_with_text.png (Phase 5 - with text overlay)")
+        if video_scene_metadata:
+            print(f"   ✓ video_scene.png")
+
+        print(f"\n📊 Script Statistics:")
         print(f"   - Lines: {len(script.lines)}")
         print(f"   - Words: {script.word_count}")
         print(f"   - Duration: ~{script.estimated_duration_minutes:.1f} minutes")
         print(f"   - Characters: Sarah (teacher) & Alex (learner)")
 
         # Next steps
-        print(f"\n{Colors.BOLD}Next Steps:{Colors.ENDC}")
-        print("✨ Phase 1 Complete: Script Generation")
-        print("📋 Phase 2: Add SEO metadata generation (coming next)")
-        print("🎤 Phase 3: Add Text-to-Speech conversion")
-        print("🖼️  Phase 4: Add thumbnail generation")
-        print("🎬 Phase 5: Add video assembly (FFmpeg)")
+        print(f"\n{Colors.BOLD}Pipeline Status:{Colors.ENDC}")
+        print("✅ Phase 1: Script Generation - Complete")
+        print("✅ Phase 2: SEO Metadata - Complete" if seo_path else "⏳ Phase 2: SEO Metadata - Skipped")
+        print("✅ Phase 3: Text-to-Speech - Complete" if tts_metadata else "⏳ Phase 3: Text-to-Speech - Skipped")
+        print("✅ Phase 4: Image Generation - Complete" if (thumbnail_metadata or video_scene_metadata) else "⏳ Phase 4: Image Generation - Skipped")
+        print("✅ Phase 5: Text Overlay - Complete" if edited_thumbnail_metadata else ("⏳ Phase 5: Text Overlay - Skipped" if thumbnail_metadata else "⏳ Phase 5: Text Overlay - Not available"))
+        print("🎬 Phase 6: Video assembly with FFmpeg (coming soon)")
 
         return script
 

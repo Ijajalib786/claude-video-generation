@@ -1,0 +1,19 @@
+# Claude API (Anthropic)
+ANTHROPIC_API_KEY='KEY'
+
+# OpenAI API (ChatGPT)
+OPENAI_API_KEY='KEY'
+
+# Google Cloud (Text-to-Speech)
+GOOGLE_APPLICATION_CREDENTIALS=path/to/google_credentials.json
+
+# Google Gemini API (Phase 3: Text-to-Speech with Google Studio)
+GOOGLE_GEMINI_API_KEY=KEY
+
+# Output configuration
+OUTPUT_DIR=outputs
+REFERENCE_DIR=references
+TEMP_DIR=temp
+
+# Logging
+LOG_LEVEL=INFO

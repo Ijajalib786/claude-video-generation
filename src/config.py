@@ -22,6 +22,7 @@ TEMP_DIR.mkdir(exist_ok=True)
 ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip("'\"")
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip("'\"")
 GOOGLE_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
+GOOGLE_GEMINI_API_KEY = os.getenv("GOOGLE_GEMINI_API_KEY", "").strip("'\"")  # For Google Studio TTS
 
 # Paths
 PROMPTS_DIR = REFERENCES_DIR / "prompts"
@@ -34,6 +35,24 @@ THUMBNAIL_PROMPT_PATH = PROMPTS_DIR / "Thumbnail Image- Prompt.txt"
 VIDEO_PROMPT_PATH = PROMPTS_DIR / "Video Image- Prompt.txt"
 EXAMPLE_SCRIPT_PATH = EXAMPLES_DIR / "Script- Say No Politely.txt"
 
+# Canonical References (Phase 4: Image Generation)
+CANONICAL_REFERENCES = {
+    'thumbnail': [
+        IMAGES_DIR / "Thumbnail_character__style_canonical_ref-1.png",
+        IMAGES_DIR / "Thumbnail_character_style_canonical_ref-2.png"
+    ],
+    'video': [
+        IMAGES_DIR / "Video_character_style_canonical_ref_1.png",
+        IMAGES_DIR / "Video_character_style_canonical_ref_2.png"
+    ]
+}
+
+# Image generation settings
+IMAGE_GENERATION_MODEL = "gpt-image-2.5-sunburst"
+THUMBNAIL_SIZE = "1280x720"
+VIDEO_SCENE_SIZE = "1920x1088"  # Divisible by 16 for API requirements
+TEXT_POSITION_AUTO = "AUTO"  # Let API decide best text placement
+
 # Content specs
 SCRIPT_MIN_WORDS = 1500
 SCRIPT_MAX_WORDS = 2000
@@ -45,6 +64,42 @@ CLAUDE_MODEL = "claude-sonnet-5"
 GPT_MODEL = "gpt-4o"
 TEMPERATURE = 0.7
 MAX_TOKENS = 4096
+
+# TTS Settings (Phase 3)
+TTS_MODEL = "gemini-3.8-flash-tts"
+TTS_VOICES = {
+    "Sarah": "Leda",    # Female voice (from official Google code)
+    "Alex": "Iapetus"      # Male voice (from official Google code)
+}
+TTS_AUDIO_FORMAT = "mp3"  # Output format
+TTS_SAMPLE_RATE = 24000  # Sample rate in Hz
+TTS_PARALLEL_THREADS = 2  # Number of parallel synthesis threads (Sarah + Alex)
+
+# Phase 5: Text Overlay Settings
+TEXT_OVERLAY_ENABLED = True
+TEXT_OVERLAY_MODEL = "gpt-image-2.5-sunburst"
+TEXT_OVERLAY_SIZE = "1280x720"  # Must match thumbnail size
+TEXT_OVERLAY_QUALITY = "high"
+
+# Prompt context for Phase 5 - helps AI make intelligent decisions
+TEXT_OVERLAY_CONTEXT = """
+Channel: SPEAK ENGLISH SMARTER (English learning)
+Viewer Context: YouTube mobile feed (375px width)
+
+PRIORITY ORDER:
+1. ANALYZE IMAGE: Identify character positions and available spaces
+2. EYE-CATCHING: Make text grab attention using available space
+3. READABLE: Must be legible on small mobile screens (375px)
+4. PROFESSIONAL: Match brand aesthetic (not garish)
+5. SAFE: Avoid YouTube UI elements (~30px margin from edges)
+
+Strategy: Let the IMAGE COMPOSITION guide text placement.
+Each thumbnail has different character positions.
+Find the best empty space for this specific image.
+"""
+
+MOBILE_VIEWPORT_WIDTH = 375  # Reference width for mobile readability
+YOUTUBE_EDGE_MARGIN = 30     # Pixels from edges to avoid YouTube UI
 
 # Logging
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
