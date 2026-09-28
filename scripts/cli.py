@@ -23,6 +23,7 @@ from src.agents.tts_agent import generate_tts_audio
 from src.agents.thumbnail_image_agent import generate_thumbnail_image
 from src.agents.video_image_agent import generate_video_scene
 from src.agents.edit_thumbnail_image import edit_thumbnail_image
+from src.agents.video_assembly_agent import generate_video
 
 class Colors:
     HEADER = '\033[95m'
@@ -102,6 +103,18 @@ def get_skip_images_input():
         else:
             print_warning("Please enter 'y' or 'n'")
 
+def get_skip_video_assembly_input():
+    """Ask user if they want to assemble video (Phase 6)."""
+    while True:
+        response = input(f"{Colors.OKBLUE}Assemble final MP4 video? (y/N, default: no): {Colors.ENDC}").strip().lower()
+
+        if not response or response == 'n' or response == 'no':
+            return True  # Skip video assembly (default)
+        elif response == 'y' or response == 'yes':
+            return False  # Don't skip video assembly
+        else:
+            print_warning("Please enter 'y' or 'n'")
+
 @click.command()
 @click.option('--topic', prompt=False, default=None, help='Video topic')
 @click.option('--context', prompt=False, default=None, help='Additional context for the topic')
@@ -155,6 +168,18 @@ def main(topic, context, output):
         print_info("Image generation will be skipped")
     else:
         print_info("Images (thumbnail + video scene) will be generated")
+
+    # Ask if user wants video assembly (Phase 6)
+    # Note: Only ask if TTS will be generated (can't make video without audio)
+    skip_video_assembly = True  # Default: skip
+    if not skip_tts:
+        skip_video_assembly = get_skip_video_assembly_input()
+        if skip_video_assembly:
+            print_info("Video assembly will be skipped")
+        else:
+            print_info("Final MP4 video will be assembled")
+    else:
+        print_info("Video assembly will be skipped (TTS is disabled)")
 
     # Create topic input
     try:
@@ -288,6 +313,39 @@ def main(topic, context, output):
         elif not thumbnail_metadata:
             print_info("Text overlay skipped: No thumbnail generated")
 
+        # Generate video (Phase 6)
+        video_path = None
+        if not skip_video_assembly and config.VIDEO_ASSEMBLY_ENABLED and tts_metadata and video_scene_metadata:
+            try:
+                print(f"\n{Colors.BOLD}{Colors.OKBLUE}Starting Phase 6: Video Assembly...{Colors.ENDC}")
+
+                video_path = generate_video(
+                    output_folder,
+                    script_path,
+                    output_folder / "audio" / "audio.mp3",
+                    output_folder / "video_scene.png",
+                    tts_metadata,
+                    seo_metadata if seo_metadata else None
+                )
+
+                if video_path:
+                    print(f"\n{Colors.BOLD}{Colors.OKGREEN}=== Video Assembly Complete ==={Colors.ENDC}")
+                    print(f"🎬 Final video: {video_path}")
+                else:
+                    print_warning("Video assembly completed with warnings")
+
+            except Exception as e:
+                print_warning(f"Video assembly skipped: {e}")
+                video_path = None
+        elif skip_video_assembly:
+            print_info("Phase 6: Video assembly skipped by user")
+        elif not config.VIDEO_ASSEMBLY_ENABLED:
+            print_info("Phase 6: Video assembly disabled in config")
+        elif not tts_metadata:
+            print_info("Phase 6: Video assembly requires TTS audio (Phase 3)")
+        elif not video_scene_metadata:
+            print_info("Phase 6: Video assembly requires video scene (Phase 4)")
+
         # Display complete summary
         print(f"\n{Colors.BOLD}{Colors.OKGREEN}=== Generation Complete ==={Colors.ENDC}")
         print(f"📁 Output folder: {output_folder}")
@@ -297,17 +355,17 @@ def main(topic, context, output):
         if seo_path:
             print(f"   ✓ seo_metadata.txt")
         if tts_metadata:
-            print(f"   ✓ audio/sarah_audio.mp3")
-            print(f"   ✓ audio/alex_audio.mp3")
-            print(f"   ✓ audio/combined_audio.mp3")
+            print(f"   ✓ audio/audio.mp3")
             print(f"   ✓ audio/tts_metadata.json")
-            print(f"   ✓ audio/segmentation_report.txt")
         if thumbnail_metadata:
             print(f"   ✓ thumbnail.png (Phase 4 - no text)")
         if edited_thumbnail_metadata:
             print(f"   ✓ thumbnail_with_text.png (Phase 5 - with text overlay)")
         if video_scene_metadata:
             print(f"   ✓ video_scene.png")
+        if video_path:
+            print(f"   ✓ output_video.mp4 (Phase 6 - final video)")
+            print(f"   ✓ subtitle.srt (Phase 6 - captions)")
 
         print(f"\n📊 Script Statistics:")
         print(f"   - Lines: {len(script.lines)}")
@@ -322,7 +380,7 @@ def main(topic, context, output):
         print("✅ Phase 3: Text-to-Speech - Complete" if tts_metadata else "⏳ Phase 3: Text-to-Speech - Skipped")
         print("✅ Phase 4: Image Generation - Complete" if (thumbnail_metadata or video_scene_metadata) else "⏳ Phase 4: Image Generation - Skipped")
         print("✅ Phase 5: Text Overlay - Complete" if edited_thumbnail_metadata else ("⏳ Phase 5: Text Overlay - Skipped" if thumbnail_metadata else "⏳ Phase 5: Text Overlay - Not available"))
-        print("🎬 Phase 6: Video assembly with FFmpeg (coming soon)")
+        print("✅ Phase 6: Video Assembly - Complete" if video_path else "⏳ Phase 6: Video Assembly - Skipped")
 
         return script
 

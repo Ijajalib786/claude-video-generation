@@ -2,7 +2,7 @@
 
 ## ⚡ Get Started in 5 Minutes
 
-This guide covers the complete pipeline: **Script → SEO → TTS → Images**
+This guide covers the complete pipeline: **Script → SEO → TTS → Images → Text Overlay → MP4 Video**
 
 ---
 
@@ -72,6 +72,7 @@ python scripts/cli.py generate
 3. **Video Length (default 12 min):** Enter 8-20, or press Enter
 4. **Generate TTS audio (Y/n)?** Enter Y or N
 5. **Generate images (Y/n)?** Enter Y or N
+6. **Assemble final MP4 video (y/N)?** Enter y for yes, or press Enter to skip
 
 ### Example Topics
 ```powershell
@@ -98,7 +99,10 @@ outputs/{topic}/
 ├── audio/
 │   └── audio.mp3            # Phase 3: TTS audio (if enabled)
 ├── thumbnail.png            # Phase 4: YouTube thumbnail
-└── video_scene.png          # Phase 4: Video background
+├── thumbnail_with_text.png  # Phase 5: Thumbnail with text (if images enabled)
+├── video_scene.png          # Phase 4: Video background
+├── subtitle.srt             # Phase 6: Auto-generated captions (if video enabled)
+└── output_video.mp4         # Phase 6: Final MP4 video (if video enabled)
 ```
 
 ---
@@ -143,6 +147,8 @@ python scripts/cli.py generate --topic "Your topic"
 | **2: SEO** | Script | seo_metadata.txt | ❌ Required |
 | **3: TTS** | Script | audio/audio.mp3 | ✅ Optional |
 | **4: Images** | Script+SEO | thumbnail.png, video_scene.png | ✅ Optional |
+| **5: Text Overlay** | Thumbnail+SEO | thumbnail_with_text.png | ✅ Auto (if Phase 4) |
+| **6: Video Assembly** | Audio+Images+Script | output_video.mp4, subtitle.srt | ✅ Optional |
 
 ---
 
@@ -177,6 +183,25 @@ Tags: english conversation, introductions, speaking English...
 - Professional TTS with two voices
 - Sarah (teacher), Alex (learner)
 - Ready for video sync
+
+### thumbnail_with_text.png
+- Phase 5 output (if images enabled)
+- Same as thumbnail.png but with text overlay
+- Text from SEO metadata (eye-catching summary)
+- Ready for YouTube upload
+
+### subtitle.srt
+- Phase 6 output (if video enabled)
+- Auto-generated captions in SRT format
+- Timing aligned with actual audio playback
+- Ready for video player embedding
+
+### output_video.mp4
+- Phase 6 output (if video enabled)
+- Final MP4 video (1920×1080, H.264 codec)
+- Duration matches audio length (10-15 minutes)
+- Includes audio + captions + spectrum visualization
+- Ready for YouTube upload
 
 ---
 
@@ -216,11 +241,12 @@ python scripts/cli.py generate --help
 | Document | Purpose | Read Time |
 |----------|---------|-----------|
 | **QUICKSTART.md** | This file - 5-min overview | 5 min |
-| **IMPLEMENTATION_SUMMARY.md** | Complete phases 1-4 overview | 10 min |
+| **IMPLEMENTATION_SUMMARY.md** | Complete phases 1-6 overview | 15 min |
 | **PHASE_1_README.md** | Script generation deep dive | 15 min |
 | **PHASE_2_README.md** | SEO metadata details | 15 min |
 | **PHASE_3_README.md** | Text-to-speech details | 15 min |
 | **PLAN.md** | Master implementation plan | 20 min |
+| **CLAUDE.md** | Project guidelines & instructions | 10 min |
 
 ---
 

@@ -10,7 +10,7 @@ This file contains permanent instructions for working on this project. Follow th
 
 **Input:** Topic → **Output:** Complete MP4 video (script, audio, images, metadata)
 
-**Learning Goal:** Learn Agentic AI patterns incrementally (Phase 1→5)
+**Learning Goal:** ✅ COMPLETE - All 6 phases successfully implement Agentic AI patterns
 
 ---
 
@@ -29,11 +29,12 @@ Read the **PHASE STATUS TRACKER** to understand:
 Phase 1: ✅ COMPLETE & APPROVED
 Phase 2: ✅ COMPLETE & APPROVED
 Phase 3: ✅ COMPLETE & APPROVED
-Phase 4: ✅ COMPLETE & VERIFIED (All enhancements implemented)
-Phase 5: 🔜 PLANNED (Thumbnail text overlay + video assembly)
+Phase 4: ✅ COMPLETE & APPROVED
+Phase 5: ✅ COMPLETE & APPROVED (Thumbnail text overlay)
+Phase 6: ✅ COMPLETE & APPROVED (Video assembly with audio)
 ```
 
-**CRITICAL RULE:** Phase 4 is now complete. Ready to proceed with Phase 5 planning.
+**🎉 ALL PHASES COMPLETE!** Full end-to-end video generation pipeline is functional and ready for production use.
 
 ### 3. Know Your Role
 - **Phase 1 (Testing):** Run scripts, verify output, get approval
@@ -64,8 +65,9 @@ The CLI will ask for:
 3. **Video Length:** Desired length in minutes (8-20 min, default 12)
 4. **Generate TTS audio? (Y/n):** Skip Phase 3 if not needed
 5. **Generate images? (Y/n):** Skip Phase 4 if not needed
+6. **Assemble final MP4 video? (y/N):** Defaults to No unless TTS enabled
 
-### All Phases Implemented & Working
+### All Phases Implemented & Working (6/6 Complete)
 - ✅ **Phase 1:** Topic-based script generation (Sarah & Alex dialogue)
 - ✅ **Phase 2:** SEO metadata generation (title, description, hashtags, tags)
 - ✅ **Phase 3:** Text-to-Speech with Google Studio API (multi-speaker)
@@ -76,6 +78,8 @@ The CLI will ask for:
   - Thumbnails with character positioning for text space
   - Video scenes with flat vector illustration style
   - Metadata generation (comprehensive tracking)
+- ✅ **Phase 5:** Thumbnail text overlay (AI-determined positioning)
+- ✅ **Phase 6:** Video assembly (MP4 with audio + captions + spectrum visualization)
 
 ### Expected Output
 ```
@@ -89,7 +93,10 @@ outputs/
     │   ├── tts_metadata.json        # Phase 3: TTS metadata
     │   └── segmentation_report.txt  # Phase 3: Validation report
     ├── thumbnail.png                # Phase 4A: YouTube thumbnail (1280×720)
-    └── video_scene.png              # Phase 4B: Video scene (1920×1088)
+    ├── thumbnail_with_text.png      # Phase 5: Thumbnail with text overlay
+    ├── video_scene.png              # Phase 4B: Video scene (1920×1088)
+    ├── subtitle.srt                 # Phase 6: Auto-generated captions
+    └── output_video.mp4             # Phase 6: Final video (1920×1080, 10-15 min)
 ```
 
 **Output folder naming:** Topic name converted to snake_case
@@ -115,7 +122,9 @@ claude-video-generation/
 │       ├── seo_metadata_agent.py           ← Phase 2: SEO metadata
 │       ├── tts_agent.py                    ← Phase 3: Text-to-speech
 │       ├── thumbnail_image_agent.py        ← Phase 4A: Thumbnail images
-│       └── video_image_agent.py            ← Phase 4B: Video scenes
+│       ├── video_image_agent.py            ← Phase 4B: Video scenes
+│       ├── edit_thumbnail_image.py         ← Phase 5: Text overlay
+│       └── video_assembly_agent.py         ← Phase 6: Video assembly
 ├── scripts/
 │   ├── cli.py                     ← Main entry point
 │   ├── setup_venv.ps1             ← Virtual env setup
@@ -229,14 +238,32 @@ python tests\test_phase_1.py
 
 **Current State:** Generates both thumbnail.png and video_scene.png
 
-### Phase 5: Thumbnail Text Overlay + Video Assembly 🔜 PLANNED
-**Status:** Ready for planning and implementation
+### Phase 5: Thumbnail Text Overlay ✅ COMPLETE & APPROVED
+**Status:** Fully implemented with OpenAI Image Edit API
 
-**Features to Implement:**
-- Thumbnail text overlay using SEO metadata
-- FFmpeg video assembly
-- Audio + images combination
-- MP4 output (1920×1080, 10-15 min)
+**Features Implemented:**
+- ✅ AI-determined text positioning on thumbnail images
+- ✅ Flexible placement based on image content analysis
+- ✅ Eye-catching text styling for YouTube feed
+- ✅ Mobile-optimized readability (375px viewport)
+- ✅ Separate output file: thumbnail_with_text.png
+
+**Current State:** Generates thumbnail with text overlay
+
+### Phase 6: Video Assembly (MoviePy) ✅ COMPLETE & APPROVED
+**Status:** Fully implemented with audio + video composition
+
+**Features Implemented:**
+- ✅ MoviePy video composition (video_scene.png + audio.mp3)
+- ✅ Auto-generated SRT captions with TTS-aligned timing
+- ✅ Caption overlay at bottom-center with semi-transparent background
+- ✅ Audio spectrum visualization (librosa analysis) at top-center
+- ✅ H.264 MP4 output (1920×1080, 10-15 minutes)
+- ✅ Interactive prompt: Ask user whether to generate video
+- ✅ Smart defaults: Skip if TTS is disabled
+- ✅ SRT caption file auto-generated with audio-aligned timing
+
+**Current State:** Generates final MP4 video with audio + captions
 
 ---
 

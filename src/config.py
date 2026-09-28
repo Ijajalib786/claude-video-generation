@@ -101,5 +101,26 @@ Find the best empty space for this specific image.
 MOBILE_VIEWPORT_WIDTH = 375  # Reference width for mobile readability
 YOUTUBE_EDGE_MARGIN = 30     # Pixels from edges to avoid YouTube UI
 
+# Phase 6: Video Assembly Settings
+VIDEO_ASSEMBLY_ENABLED = True
+VIDEO_OUTPUT_RESOLUTION = (1920, 1080)  # 16:9 aspect ratio
+VIDEO_OUTPUT_FPS = 24
+VIDEO_OUTPUT_CODEC = "libx264"
+VIDEO_AUDIO_CODEC = "aac"
+
+# Caption Settings (Semi-Transparent Background Box)
+CAPTION_FONT_SIZE = 20
+CAPTION_FONT_COLOR = (255, 255, 255)  # White text
+CAPTION_BG_COLOR = (0, 0, 0)  # Black background
+CAPTION_BG_OPACITY = 0.75  # 75% opaque (25% transparent)
+CAPTION_POSITION = "bottom"  # bottom-center
+CAPTION_PADDING = 10  # pixels around text
+
+# Spectrum Visualization Settings (Waveform Animation)
+SPECTRUM_HEIGHT = 80  # pixels
+SPECTRUM_WIDTH = 1920  # pixels (full width)
+SPECTRUM_POSITION = "top"  # top-center
+SPECTRUM_COLOR = "#00FFFF"  # Cyan (bright accent)
+
 # Logging
 LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")
