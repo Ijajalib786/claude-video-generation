@@ -1,10 +1,10 @@
-# Implementation Summary: Phases 1-4 Complete
+# Implementation Summary: Phases 1-6 Complete
 
 ## 📊 Project Overview
 
 **SPEAK ENGLISH SMARTER Video Generation Pipeline** - Automated, incremental video generation system for English learning content.
 
-**Status:** Phases 1-4 COMPLETE | Phase 5 PLANNED
+**Status:** ✅ ALL PHASES COMPLETE (Phases 1-6)
 
 ---
 
@@ -217,6 +217,69 @@ outputs/{topic}/
 
 ---
 
+---
+
+## ✅ Phase 5: Thumbnail Text Overlay - COMPLETE (2026-09-27)
+
+### Features Delivered
+- AI-determined text positioning on thumbnail images
+- Flexible placement based on image content analysis
+- Eye-catching text styling for YouTube feed
+- Mobile-optimized readability (375px viewport)
+- Separate output file: thumbnail_with_text.png
+
+### Files
+- `src/agents/edit_thumbnail_image.py` - Text overlay agent
+- Enhanced `scripts/cli.py` - Phase 5 integration
+
+### Output
+```
+outputs/{topic}/
+├── thumbnail.png              # Original Phase 4 output (no text)
+└── thumbnail_with_text.png    # Phase 5 output (with text overlay)
+```
+
+---
+
+## ✅ Phase 6: Video Assembly - COMPLETE (2026-09-27)
+
+### Features Delivered
+- MoviePy video composition (video_scene.png + audio.mp3)
+- Auto-generated SRT captions with TTS-aligned timing
+- Caption overlay at bottom-center with semi-transparent background
+- Audio spectrum visualization (librosa analysis) at top-center
+- H.264 MP4 output (1920×1080, 10-15 minutes)
+- Interactive prompt: Ask user whether to generate video
+- Smart defaults: Skip if TTS is disabled
+
+### Files
+- `src/agents/video_assembly_agent.py` - Video assembly orchestrator
+  - `_generate_srt_from_script()` - Auto-generate SRT captions with TTS-aligned timing
+  - `_create_waveform_animation()` - Audio spectrum visualization
+  - `assemble_video()` - MoviePy clip composition
+  - `generate_video()` - Main orchestrator
+
+- Enhanced `src/config.py` - Phase 6 settings
+- Enhanced `scripts/cli.py` - Phase 6 integration
+- Updated `requirements.txt` - MoviePy, librosa, numpy
+
+### Output
+```
+outputs/{topic}/
+├── subtitle.srt               # Auto-generated SRT captions
+└── output_video.mp4           # Final video (1920×1080, 10-15 min)
+```
+
+### Capabilities
+- ✅ Video + audio composition with MoviePy
+- ✅ TTS-aligned caption timing (uses Phase 3 metadata)
+- ✅ Semi-transparent background captions
+- ✅ Waveform spectrum visualization
+- ✅ Interactive user prompts
+- ✅ Smart defaults (skip if TTS disabled)
+
+---
+
 ## 🏗️ Architecture Overview
 
 ```
@@ -239,9 +302,13 @@ Phase 4: Image Generation
   ├─ Canonical References (2 thumbnail + 2 video PNGs)
   └─ Output: thumbnail.png + video_scene.png
   ↓
-Phase 5: Video Assembly (PLANNED)
-  ├─ Audio + Images
-  └─ Output: output_video.mp4
+Phase 5: Thumbnail Text Overlay
+  ├─ SEO Metadata
+  └─ Output: thumbnail_with_text.png
+  ↓
+Phase 6: Video Assembly (MoviePy)
+  ├─ Audio + Images + Script
+  └─ Output: output_video.mp4 + subtitle.srt
 ```
 
 ---
@@ -267,8 +334,10 @@ Phase 5: Video Assembly (PLANNED)
 - `src/agents/script_generation_agent.py` - Phase 1: Script generation
 - `src/agents/seo_metadata_agent.py` - Phase 2: SEO metadata generation
 - `src/agents/tts_agent.py` - Phase 3: Text-to-speech audio
-- `src/agents/thumbnail_image_agent.py` - Phase 4A: YouTube thumbnail generation (NEW)
-- `src/agents/video_image_agent.py` - Phase 4B: Long-form video scene generation (NEW)
+- `src/agents/thumbnail_image_agent.py` - Phase 4A: YouTube thumbnail generation
+- `src/agents/video_image_agent.py` - Phase 4B: Long-form video scene generation
+- `src/agents/edit_thumbnail_image.py` - Phase 5: Text overlay on thumbnails
+- `src/agents/video_assembly_agent.py` - Phase 6: Video assembly with audio + captions
 
 ### Configuration
 - `src/config.py` - Central configuration (API keys, paths, models, settings)
@@ -312,6 +381,7 @@ python scripts\cli.py generate
 # Enter topic, context (optional), desired video length (8-20 min)
 # Choose: generate TTS? (Y/n)
 # Choose: generate images? (Y/n)
+# Choose: assemble MP4 video? (y/N) - defaults to No unless TTS enabled
 ```
 
 ### 4. Output
@@ -323,7 +393,10 @@ outputs/{topic}/
 ├── audio/audio.mp3           # Phase 3
 ├── audio/tts_metadata.json   # Phase 3
 ├── thumbnail.png             # Phase 4
-└── video_scene.png           # Phase 4
+├── thumbnail_with_text.png   # Phase 5
+├── video_scene.png           # Phase 4
+├── subtitle.srt              # Phase 6
+└── output_video.mp4          # Phase 6 (1920×1080, 10-15 min)
 ```
 
 ---
@@ -336,7 +409,8 @@ outputs/{topic}/
 | 2: SEO Metadata | ✅ COMPLETE | 100% | Quality-focused metadata generation |
 | 3: Text-to-Speech | ✅ COMPLETE | 100% | Multi-speaker TTS with Google API |
 | 4: Image Generation | ✅ COMPLETE | 100% | Canonical references + professional aesthetic |
-| 5: Video Assembly | ⏳ PLANNED | 0% | FFmpeg orchestration (coming soon) |
+| 5: Thumbnail Text Overlay | ✅ COMPLETE | 100% | AI-determined text positioning |
+| 6: Video Assembly | ✅ COMPLETE | 100% | MoviePy + captions + spectrum visualization |
 
 ---
 
@@ -368,14 +442,13 @@ outputs/{topic}/
 
 ---
 
-## 🔄 Next Phase: Phase 5
+## 🎉 Project Complete!
 
-### Phase 5 Plan: Video Assembly & Production Polish
-- FFmpeg orchestration to combine audio + images
-- Thumbnail text overlay using SEO metadata
-- Final MP4 output (1920×1080, 10-15 min duration)
-- Batch processing for multiple topics
-- Monitoring and logging
+### All 6 Phases Implemented & Ready for Production
+- ✅ Phases 1-6 fully implemented, tested, and documented
+- ✅ End-to-end pipeline functional and ready to use
+- ✅ Future enhancements: Batch processing, monitoring, API endpoints
+- ✅ Ready for production deployment and scaling
 
 ---
 
@@ -441,6 +514,7 @@ docs/
 
 ## 📝 Version History
 
+- **2026-09-27**: Phase 5-6 completion (Text overlay + video assembly with MoviePy)
 - **2026-09-27**: Phase 4 completion (Image generation with improvements)
 - **2026-09-26**: Phase 3 completion (Text-to-speech with Google API)
 - **Previous**: Phase 1 & 2 completion
@@ -459,6 +533,6 @@ docs/
 ---
 
 **Last Updated:** 2026-09-27  
-**Status:** Phases 1-4 Complete, Ready for Phase 5  
-**Next Session:** Manual verification of Phase 4, then Phase 5 planning
+**Status:** ✅ ALL PHASES COMPLETE (1-6)  
+**Next Steps:** Production deployment, batch processing, API endpoints
 
