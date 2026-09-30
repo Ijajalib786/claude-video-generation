@@ -1,88 +1,144 @@
 """
-Phase 5: Thumbnail Text Overlay Agent
-Adds SEO-optimized text overlay to generated thumbnails using OpenAI Image Edit API.
-Text positioning, styling, and colors are intelligently determined by OpenAI based on image content.
+Phase 5: Thumbnail Text Overlay Agent (ENHANCED - Hybrid Approach)
+Combines:
+- AI image analysis for color guidance (dynamic colors, not fixed)
+- OpenAI rendering (professional quality visuals)
 """
 
 from pathlib import Path
-from typing import Optional
+from typing import Optional, Dict, List, Tuple
 from openai import OpenAI
+from PIL import Image
+import json
+import base64
 from .. import config
 from ..models import SEOMetadata, ImageMetadata
 
 
-def _build_flexible_prompt(
-    thumbnail_text: str,
-    topic: Optional[str] = None,
-    context: Optional[str] = None
-) -> str:
+def _build_color_analysis_prompt(thumbnail_text: str, topic: Optional[str] = None) -> str:
     """
-    Build an intelligent, image-aware prompt for OpenAI text overlay.
-
-    Lets OpenAI analyze the thumbnail image and determine:
-    - Best text positioning (based on character/subject positions)
-    - Best text styling (bold, effects, etc.)
-    - Best text color (for maximum mobile readability)
-    - Best font size (for impact and legibility)
-
-    Args:
-        thumbnail_text: Text to add (from SEO metadata)
-        topic: Video topic (optional, for context)
-        context: Additional context (optional)
-
-    Returns:
-        Flexible prompt string that guides OpenAI's analysis and optimization
+    Build prompt for AI to analyze image colors and suggest text colors.
+    Returns JSON with dominant colors and recommended text color.
     """
 
-    # Build context information
-    context_info = ""
-    if topic:
-        context_info += f"\nVideo Topic: {topic}\n"
-    if context:
-        context_info += f"Additional Context: {context}\n"
+    prompt = f"""Analyze this YouTube thumbnail for the SPEAK ENGLISH SMARTER channel.
+Text to add: "{thumbnail_text}"
+{f'Topic: {topic}' if topic else ''}
 
-    # Main flexible prompt with priority hierarchy
-    prompt = f"""This is a YouTube thumbnail for the SPEAK ENGLISH SMARTER English learning channel.
-Add the following text to this thumbnail: "{thumbnail_text}"{context_info}
+ANALYZE and return JSON ONLY:
+{{
+  "dominant_colors": ["#HEX1", "#HEX2", "#HEX3"],
+  "background_brightness": "dark|light|medium",
+  "recommended_text_color": "#HEX",
+  "text_position": "top_left|top_center|top_right|center_left|center|center_right|bottom_left|bottom_center|bottom_right",
+  "text_style": "bold_white_shadow|bold_yellow_glow|bold_cyan_shadow|bold_orange_outline",
+  "contrast_ratio": 7.5
+}}
 
-ANALYSIS FIRST - Study this thumbnail image:
-- Identify where the main characters/subjects are positioned
-- Locate empty/clear spaces available for text overlay
-- Analyze the image composition (scenario type: home, office, travel, etc.)
-- Determine the natural positioning based on where space exists
+Consider:
+1. Image's dominant colors for complementary text
+2. Background brightness for text visibility
+3. Best empty space for text placement
+4. Professional styling (not garish)
 
-PRIMARY GOAL - Make text EYE-CATCHING and ATTENTION-GRABBING:
-- Use bold, impactful styling that captures attention in YouTube feed
-- Apply high contrast colors (not subtle - make it POP)
-- Position text in the best available space found above
-- Strong visual weight so viewers notice it immediately when scrolling
-
-CONSTRAINT - Must be READABLE on mobile (375px phone screens):
-- Font size must be large enough for small screens
-- Use clear, crisp letters - no overly fancy fonts
-- Ensure high contrast ratio for legibility
-- Test: A viewer scrolling YouTube on a phone should clearly read this text
-
-REQUIREMENT - Maintain professional SPEAK ENGLISH SMARTER brand appearance:
-- Don't use garish or neon colors - keep professional tone
-- Position text to avoid covering main characters/subjects
-- Text should enhance the thumbnail, not clash with design
-- Use available space intelligently based on actual image layout
-
-OPTIMIZATION - For YouTube platform:
-- Avoid positioning text at outer edges (YouTube UI elements near ~30px margins)
-- Position text in the safe area specific to THIS thumbnail's composition
-- Consider YouTube's compressed thumbnail display format
-
-DECISION: Based on your analysis above, determine and apply the optimal:
-✓ Text position (top, bottom, left, right, center - based on where space exists)
-✓ Text color (best contrast for mobile visibility)
-✓ Text style (bold, shadow, outline - whatever optimizes impact)
-✓ Text size (auto-scaled for readability and impact at 375px width)
-
-Execute: Add the text "{thumbnail_text}" with your optimized positioning and styling."""
+Return ONLY valid JSON."""
 
     return prompt
+
+
+def _extract_image_colors_local(image_path: Path) -> List[Tuple[int, int, int]]:
+    """
+    Extract dominant colors from thumbnail using PIL for analysis.
+    """
+    try:
+        print(f"[DATA] Analyzing image colors...")
+
+        img = Image.open(image_path)
+        img_small = img.copy()
+        img_small.thumbnail((100, 100))
+
+        if img_small.mode != 'RGB':
+            img_small = img_small.convert('RGB')
+
+        pixels = list(img_small.getdata())
+        color_freq = {}
+
+        for pixel in pixels:
+            pixel_tuple = tuple(pixel[:3])
+            color_freq[pixel_tuple] = color_freq.get(pixel_tuple, 0) + 1
+
+        dominant = sorted(color_freq.items(), key=lambda x: x[1], reverse=True)[:3]
+        colors = [color[0] for color in dominant]
+
+        for i, color in enumerate(colors):
+            hex_color = '#{:02x}{:02x}{:02x}'.format(*color)
+            print(f"   Color {i+1}: {hex_color}")
+
+        return colors
+
+    except Exception as e:
+        print(f"[WARN] Color extraction failed: {str(e)}")
+        return []
+
+
+def _build_rendering_prompt(
+    thumbnail_text: str,
+    dominant_colors: List[str],
+    text_color: str,
+    text_position: str,
+    text_style: str,
+    topic: Optional[str] = None
+) -> str:
+    """
+    Build enhanced prompt for OpenAI to render text with dynamic colors.
+    """
+
+    colors_str = ", ".join(dominant_colors[:3])
+
+    prompt = f"""Add professional text overlay to this YouTube thumbnail for SPEAK ENGLISH SMARTER.
+
+TEXT TO ADD: "{thumbnail_text}"
+{f'TOPIC: {topic}' if topic else ''}
+
+STYLING REQUIREMENTS:
+- Text: "{thumbnail_text}"
+- Position: {text_position} area of the frame
+- Style: {text_style}
+- Text Color: {text_color} (recommended for this image)
+- Image Dominant Colors: {colors_str}
+
+IMPORTANT:
+- Make text EYE-CATCHING and READABLE on mobile (375px screens)
+- Use PROFESSIONAL styling (bold, shadow, or glow effects)
+- Avoid covering main characters/subjects
+- Maintain brand appearance (not garish or neon)
+- Use {text_color} for TEXT color (this color has good contrast on this image)
+- Position text in the {text_position} area where there's available space
+- Apply shadow or outline effects for depth and readability
+
+QUALITY:
+- High-quality professional rendering
+- Text must be clearly readable
+- Professional YouTube thumbnail appearance
+- Dynamic styling (not static/plain)"""
+
+    return prompt
+
+
+def _get_color_suggestions(
+    analysis: Dict,
+    dominant_colors: List[Tuple[int, int, int]]
+) -> Tuple[str, str, str]:
+    """
+    Extract color and styling suggestions from AI analysis.
+    Returns: (text_color_hex, text_position, text_style)
+    """
+
+    text_color = analysis.get("recommended_text_color", "#FFFFFF")
+    text_position = analysis.get("text_position", "bottom_center")
+    text_style = analysis.get("text_style", "bold_white_shadow")
+
+    return text_color, text_position, text_style
 
 
 def edit_thumbnail_image(
@@ -93,102 +149,160 @@ def edit_thumbnail_image(
     context: Optional[str] = None
 ) -> Optional[ImageMetadata]:
     """
-    Add SEO-optimized text overlay to generated thumbnail.
+    Add professional, dynamic text overlay to thumbnail.
 
-    Uses OpenAI's image edit API with intelligent prompting to add text that:
-    - Grabs attention in YouTube feed
-    - Is readable on mobile (375px)
-    - Maintains professional appearance
-    - Avoids covering main subjects
+    Hybrid approach:
+    1. AI analyzes image to determine colors & positioning
+    2. Enhanced prompt tells OpenAI to use those dynamic colors
+    3. OpenAI renders professionally (best visual quality)
 
     Args:
         thumbnail_path: Path to generated thumbnail image
         seo_metadata: SEOMetadata object containing thumbnail_text
         output_folder: Output folder for edited thumbnail
-        topic: Video topic (optional, for context)
+        topic: Video topic (optional)
         context: Additional context (optional)
 
     Returns:
         ImageMetadata with updated thumbnail info, or None on error
     """
 
-    print(f"\nAdding text overlay to thumbnail...")
-    print("=" * 60)
+    print(f"\n{'='*60}")
+    print(f"PHASE 5: Thumbnail Text Overlay (Enhanced - Dynamic Colors)")
+    print(f"{'='*60}")
 
     try:
-        # Verify thumbnail exists
+        # Verify inputs
         if not thumbnail_path.exists():
-            print(f"ERROR: Thumbnail not found at {thumbnail_path}")
+            print(f"[ERROR] Thumbnail not found: {thumbnail_path}")
             return None
 
-        # Get OpenAI API key
         if not config.OPENAI_API_KEY:
-            print("ERROR: OPENAI_API_KEY not set")
+            print(f"[ERROR] OPENAI_API_KEY not set")
             return None
 
-        # Initialize OpenAI client
-        client = OpenAI(api_key=config.OPENAI_API_KEY)
-
-        # Extract text from SEO metadata
         thumbnail_text = seo_metadata.thumbnail_text
         if not thumbnail_text:
-            print("WARNING: No thumbnail text in SEO metadata")
+            print(f"[WARN] No thumbnail text in SEO metadata")
             return None
 
-        print(f"Text to add: '{thumbnail_text}'")
+        print(f"[TEXT] Adding text: '{thumbnail_text}'")
 
-        # Build intelligent, flexible prompt
-        edit_prompt = _build_flexible_prompt(thumbnail_text, topic, context)
+        # Step 1: Local color analysis
+        print(f"\n[ANALYSIS] Analyzing image colors locally...")
+        dominant_colors = _extract_image_colors_local(thumbnail_path)
+        dominant_colors_hex = []
+        if dominant_colors:
+            dominant_colors_hex = ['#{:02x}{:02x}{:02x}'.format(*color) for color in dominant_colors]
 
-        print("Calling OpenAI Image Edit API...")
-        print(f"Strategy: Let AI analyze image and determine optimal positioning...")
+        # Step 2: AI image analysis for positioning & color suggestions
+        print(f"[ANALYSIS] Calling OpenAI for image analysis...")
+        client = OpenAI(api_key=config.OPENAI_API_KEY)
 
-        # Call OpenAI Image Edit API
-        # Note: No mask needed - we let OpenAI analyze the image
+        color_analysis_prompt = _build_color_analysis_prompt(thumbnail_text, topic)
+
+        # Read image as base64 for analysis
+        with open(thumbnail_path, "rb") as img_file:
+            img_b64 = base64.b64encode(img_file.read()).decode()
+
+        analysis_response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/png;base64,{img_b64}"
+                            }
+                        },
+                        {
+                            "type": "text",
+                            "text": color_analysis_prompt
+                        }
+                    ]
+                }
+            ],
+            max_tokens=300
+        )
+
+        analysis_text = analysis_response.choices[0].message.content
+
+        # Parse color analysis
+        analysis = {}
+        try:
+            json_start = analysis_text.find('{')
+            json_end = analysis_text.rfind('}') + 1
+            if json_start >= 0 and json_end > json_start:
+                json_str = analysis_text[json_start:json_end]
+                analysis = json.loads(json_str)
+        except:
+            print(f"[WARN] Could not parse color analysis, using defaults")
+
+        text_color, text_position, text_style = _get_color_suggestions(analysis, dominant_colors)
+
+        print(f"[ANALYSIS] Suggested color: {text_color}")
+        print(f"[ANALYSIS] Position: {text_position}")
+        print(f"[ANALYSIS] Style: {text_style}")
+
+        # Step 3: Enhanced rendering prompt
+        rendering_prompt = _build_rendering_prompt(
+            thumbnail_text,
+            dominant_colors_hex,
+            text_color,
+            text_position,
+            text_style,
+            topic
+        )
+
+        # Step 4: Call OpenAI Image Edit API with enhanced prompt
+        print(f"\n[RENDER] Calling OpenAI Image Edit API with dynamic colors...")
+
         with open(thumbnail_path, "rb") as image_file:
-            response = client.images.edit(
+            edit_response = client.images.edit(
                 image=image_file,
-                prompt=edit_prompt,
+                prompt=rendering_prompt,
                 model=config.TEXT_OVERLAY_MODEL,
                 size=config.TEXT_OVERLAY_SIZE,
                 n=1,
                 quality=config.TEXT_OVERLAY_QUALITY
             )
 
-        # Extract edited image from response
-        if not response.data or len(response.data) == 0:
-            print("ERROR: No response data from OpenAI API")
+        if not edit_response.data or len(edit_response.data) == 0:
+            print(f"[ERROR] No response from OpenAI Image Edit API")
             return None
 
-        image_data = response.data[0]
+        image_data = edit_response.data[0]
 
-        # Handle both URL and base64 responses
+        # Step 5: Download and save edited image
+        output_folder.mkdir(parents=True, exist_ok=True)
+
         if hasattr(image_data, 'url') and image_data.url:
             import urllib.request
-            print(f"Downloading edited image from URL...")
+            print(f"[DOWNLOAD] Getting edited image from URL...")
             edited_thumbnail_path = output_folder / "thumbnail_with_text.png"
             urllib.request.urlretrieve(image_data.url, str(edited_thumbnail_path))
             with open(edited_thumbnail_path, "rb") as f:
                 image_bytes = f.read()
         elif hasattr(image_data, 'b64_json') and image_data.b64_json:
-            import base64
+            print(f"[SAVE] Decoding base64 image...")
             image_bytes = base64.b64decode(image_data.b64_json)
             edited_thumbnail_path = output_folder / "thumbnail_with_text.png"
         else:
-            print("ERROR: No image data in response")
+            print(f"[ERROR] No image data in response")
             return None
 
-        # Save edited thumbnail with new name (preserve original thumbnail.png)
-        output_folder.mkdir(parents=True, exist_ok=True)
+        # Save the edited thumbnail
         edited_thumbnail_path = output_folder / "thumbnail_with_text.png"
         with open(edited_thumbnail_path, "wb") as f:
             f.write(image_bytes)
 
-        print(f"✓ Edited thumbnail saved: {edited_thumbnail_path}")
-        print(f"  Size: {len(image_bytes) / 1024:.1f} KB")
-        print(f"  Text added: '{thumbnail_text}'")
-        print(f"  Positioning: AI-determined (image-aware, mobile-optimized)")
-        print(f"  Original preserved: {output_folder / 'thumbnail.png'}")
+        print(f"[SAVE] Text overlay saved: {edited_thumbnail_path.name}")
+        print(f"       Size: {len(image_bytes) / 1024:.1f} KB")
+        print(f"       Text: '{thumbnail_text}'")
+        print(f"       Color: {text_color}")
+        print(f"       Position: {text_position}")
 
         # Create metadata
         metadata = ImageMetadata(
@@ -196,15 +310,16 @@ def edit_thumbnail_image(
             image_type="thumbnail_with_text",
             file_path=str(edited_thumbnail_path),
             resolution=config.TEXT_OVERLAY_SIZE,
-            generation_model=config.TEXT_OVERLAY_MODEL,
-            prompt_used="Flexible image-aware text overlay prompt"
+            generation_model="OpenAI (Enhanced with dynamic colors)",
+            prompt_used="Hybrid approach: AI analysis + enhanced rendering"
         )
 
-        print("✓ Text overlay completed successfully")
+        print(f"\n[DONE] Text overlay completed successfully")
+
         return metadata
 
     except Exception as e:
-        print(f"ERROR: Text overlay failed - {str(e)}")
+        print(f"[ERROR] Text overlay failed: {str(e)}")
         import traceback
         traceback.print_exc()
         return None

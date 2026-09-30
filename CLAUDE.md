@@ -17,7 +17,7 @@ This file contains permanent instructions for working on this project. Follow th
 ## 📍 ALWAYS START HERE
 
 ### 1. Check the Plan First
-**File:** `docs/PLAN.md` (or `C:\Users\ijajb\.claude\plans\i-want-you-to-lively-gadget.md`)
+**File:** `docs/PLAN.md` (project-specific, not user-level)
 
 Read the **PHASE STATUS TRACKER** to understand:
 - Which phase is currently being worked on

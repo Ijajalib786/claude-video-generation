@@ -101,6 +101,55 @@ Find the best empty space for this specific image.
 MOBILE_VIEWPORT_WIDTH = 375  # Reference width for mobile readability
 YOUTUBE_EDGE_MARGIN = 30     # Pixels from edges to avoid YouTube UI
 
+# Phase 5: Text Overlay - Professional Styling (ENHANCED)
+TEXT_OVERLAY_FONTS = {
+    "bold_sans_serif": {
+        "names": ["Arial Black", "Impact", "Helvetica Bold", "sans-serif"],
+        "size_base": 48,
+        "weight": "bold",
+        "scenarios": ["professional_office", "formal"]
+    },
+    "bold_rounded_sans": {
+        "names": ["Verdana Bold", "Tahoma Bold", "sans-serif"],
+        "size_base": 44,
+        "weight": "bold",
+        "scenarios": ["casual", "friendly", "social"]
+    },
+    "bold_serif": {
+        "names": ["Georgia Bold", "Times New Roman Bold", "serif"],
+        "size_base": 42,
+        "weight": "bold",
+        "scenarios": ["premium", "elegant", "professional"]
+    }
+}
+
+TEXT_OVERLAY_EFFECTS = {
+    "drop_shadow": {
+        "enabled": True,
+        "offset": (2, 2),
+        "blur": 2,
+        "opacity": 0.4,
+        "color": (0, 0, 0)  # Black shadow
+    },
+    "text_outline": {
+        "enabled": True,
+        "width": 1,
+        "color": (0, 0, 0)  # Black outline for contrast
+    }
+}
+
+TEXT_OVERLAY_COLOR_SETTINGS = {
+    "contrast_ratio_min": 4.5,  # WCAG AA standard
+    "dynamic_color": True,  # Analyze image for complementary colors
+    "fallback_color": (255, 255, 255),  # White fallback
+    "text_color_options": [
+        (255, 255, 255),  # White
+        (255, 255, 0),    # Yellow (high contrast)
+        (0, 255, 255),    # Cyan (high contrast)
+        (255, 165, 0),    # Orange (high contrast on dark)
+    ]
+}
+
 # Phase 6: Video Assembly Settings
 VIDEO_ASSEMBLY_ENABLED = True
 VIDEO_OUTPUT_RESOLUTION = (1920, 1080)  # 16:9 aspect ratio
