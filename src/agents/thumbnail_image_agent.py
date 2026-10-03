@@ -224,9 +224,225 @@ COLOR SATURATION EMPHASIS:
     return prompt
 
 
+def _analyze_reference_styles(reference_file_paths: list) -> dict:
+    """
+    Dynamically analyze canonical references to determine their character styles.
+
+    Sends both reference images to OpenAI vision for analysis.
+    Returns analysis of beard style, hair style, overall vibe, and best use cases for each reference.
+    """
+    from openai import OpenAI
+
+    if not reference_file_paths or len(reference_file_paths) < 2:
+        print("[WARN] Not enough references to analyze styles")
+        return {}
+
+    print("[ANALYSIS] Analyzing canonical reference styles...")
+
+    try:
+        client = OpenAI(api_key=config.OPENAI_API_KEY)
+
+        # Encode images as base64
+        encoded_images = []
+        for path in reference_file_paths[:2]:  # Use first 2 references
+            with open(path, 'rb') as f:
+                encoded_images.append(base64.b64encode(f.read()).decode())
+
+        analysis_prompt = """Analyze these two character reference images for SPEAK ENGLISH SMARTER.
+
+For EACH reference image, describe:
+1. Character styling (beard style, hair style, overall vibe)
+2. Professional level (casual/relaxed vs professional/formal)
+3. Best use cases for this style
+4. Specific character traits visible
+
+Then provide:
+- Which reference is more CASUAL/RELAXED?
+- Which reference is more PROFESSIONAL/FORMAL?
+- Key visual differences between them?
+
+Format your response as:
+REFERENCE 0:
+- Beard: [description]
+- Hair: [description]
+- Vibe: [professional level]
+- Best for: [use cases]
+
+REFERENCE 1:
+- Beard: [description]
+- Hair: [description]
+- Vibe: [professional level]
+- Best for: [use cases]
+
+SUMMARY:
+- Casual reference: [0 or 1]
+- Professional reference: [0 or 1]
+- Key differences: [description]"""
+
+        # Send images to OpenAI for analysis
+        response = client.chat.completions.create(
+            model="gpt-4o",
+            messages=[
+                {
+                    "role": "user",
+                    "content": [
+                        {
+                            "type": "text",
+                            "text": analysis_prompt
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/png;base64,{encoded_images[0]}"
+                            }
+                        },
+                        {
+                            "type": "image_url",
+                            "image_url": {
+                                "url": f"data:image/png;base64,{encoded_images[1]}"
+                            }
+                        }
+                    ]
+                }
+            ],
+            max_tokens=500
+        )
+
+        analysis_text = response.choices[0].message.content
+        print(f"[ANALYSIS] Reference style analysis complete")
+        print(f"[DEBUG] {analysis_text[:200]}...")
+
+        return {
+            'analysis': analysis_text,
+            'reference_count': 2
+        }
+
+    except Exception as e:
+        print(f"[ERROR] Reference style analysis failed: {str(e)}")
+        return {}
+
+
+def _determine_needed_style(topic: str, context: Optional[str]) -> dict:
+    """
+    Analyze topic and determine what character style is needed.
+
+    Uses Claude/OpenAI to evaluate the topic and return the appropriate character style.
+    Returns style needed, reasoning, and recommended traits.
+    """
+    from anthropic import Anthropic
+
+    print(f"[STYLE] Determining needed character style for topic: {topic}")
+
+    try:
+        client = Anthropic(api_key=config.ANTHROPIC_API_KEY)
+
+        analysis_prompt = f"""Analyze this YouTube English learning video topic and determine the best character styling.
+
+Topic: {topic}
+Context: {context or "No additional context"}
+
+For this topic, determine:
+1. What character style would be most appropriate? (casual/professional/adventurous/formal/friendly)
+2. Why does this style fit the topic?
+3. What visual traits match this style? (beard, hair, expression, formality)
+4. Confidence level (high/medium/low)
+
+Format response as:
+STYLE: [style name]
+REASONING: [why this style]
+TRAITS: [specific visual traits]
+CONFIDENCE: [high/medium/low]"""
+
+        response = client.messages.create(
+            model=config.CLAUDE_MODEL,
+            max_tokens=300,
+            messages=[{"role": "user", "content": analysis_prompt}]
+        )
+
+        analysis_text = response.content[0].text
+        print(f"[STYLE] Style analysis: {analysis_text.split('STYLE:')[1][:100] if 'STYLE:' in analysis_text else 'unknown'}...")
+
+        return {
+            'analysis': analysis_text,
+            'topic': topic
+        }
+
+    except Exception as e:
+        print(f"[ERROR] Style determination failed: {str(e)}")
+        return {'analysis': 'casual', 'topic': topic}
+
+
+def _match_style_to_reference(needed_style_analysis: dict, reference_styles_analysis: dict) -> dict:
+    """
+    Match the needed style to the best matching reference.
+
+    Compares needed style vs each reference to find the best match.
+    Returns which reference to use and confidence score.
+    """
+    from anthropic import Anthropic
+
+    print(f"[MATCHING] Matching needed style to canonical references...")
+
+    try:
+        client = Anthropic(api_key=config.ANTHROPIC_API_KEY)
+
+        matching_prompt = f"""Match the needed character style to the best canonical reference.
+
+NEEDED STYLE:
+{needed_style_analysis.get('analysis', 'casual style')}
+
+REFERENCE ANALYSIS:
+{reference_styles_analysis.get('analysis', 'Two references available')}
+
+Task:
+1. Which reference (0 or 1) best matches the needed style?
+2. Score each reference 1-10 for how well it matches
+3. Provide confidence level (high/medium/low)
+4. Explain why this reference is the best match
+
+Format response as:
+BEST_MATCH: [0 or 1]
+SCORE_0: [score]
+SCORE_1: [score]
+CONFIDENCE: [high/medium/low]
+REASONING: [explanation]"""
+
+        response = client.messages.create(
+            model=config.CLAUDE_MODEL,
+            max_tokens=300,
+            messages=[{"role": "user", "content": matching_prompt}]
+        )
+
+        matching_text = response.content[0].text
+
+        # Extract best match reference
+        best_match = 0
+        if "BEST_MATCH:" in matching_text:
+            try:
+                best_match_line = matching_text.split("BEST_MATCH:")[1].split("\n")[0].strip()
+                best_match = int(best_match_line[0])  # Get first character (0 or 1)
+                if best_match > 1:
+                    best_match = 0
+            except:
+                best_match = 0
+
+        print(f"[MATCHING] Selected Reference {best_match}")
+        print(f"[DEBUG] {matching_text[:150]}...")
+
+        return {
+            'best_match_index': best_match,
+            'matching_analysis': matching_text,
+            'confidence': 'high' if 'CONFIDENCE: high' in matching_text else 'medium'
+        }
+
+    except Exception as e:
+        print(f"[ERROR] Style matching failed: {str(e)}")
+        return {'best_match_index': 0, 'confidence': 'low'}
+
+
 def generate_thumbnail_image(script: Script, seo_metadata: Optional[SEOMetadata],
                            output_folder: Path, context: Optional[str] = None) -> Optional[ImageMetadata]:
-    """Generate YouTube thumbnail image."""
+    """Generate YouTube thumbnail image with dynamic character style variation."""
 
     print(f"\nGenerating thumbnail for: {script.topic}")
     print("=" * 60)
@@ -250,6 +466,26 @@ def generate_thumbnail_image(script: Script, seo_metadata: Optional[SEOMetadata]
 
         references = _load_canonical_references()
 
+        # PHASE 1: Analyze what styles the references represent
+        print("\n[PHASE 1] Analyzing canonical reference styles...")
+        reference_styles = _analyze_reference_styles(references['file_paths'])
+
+        # PHASE 2: Determine what style this topic needs
+        print("\n[PHASE 2] Determining needed character style for this topic...")
+        needed_style = _determine_needed_style(script.topic, context)
+
+        # PHASE 3: Match needed style to best reference
+        print("\n[PHASE 3] Matching style to best reference...")
+        selected_ref = _match_style_to_reference(needed_style, reference_styles)
+        best_ref_index = selected_ref.get('best_match_index', 0)
+
+        print(f"\n[SELECTION] Using Reference {best_ref_index} for this topic")
+
+        # Use selected reference in prompt
+        if best_ref_index < len(references['file_paths']):
+            selected_reference_path = references['file_paths'][best_ref_index]
+            print(f"[SELECTION] Reference: {selected_reference_path.name}")
+
         full_prompt = _build_enhanced_prompt(
             thumbnail_prompt,
             script.topic,
@@ -258,6 +494,21 @@ def generate_thumbnail_image(script: Script, seo_metadata: Optional[SEOMetadata]
             references,
             text_position="AUTO"
         )
+
+        # Add dynamic style guidance to prompt
+        style_guidance = f"""
+
+DYNAMIC CHARACTER STYLE SELECTION:
+
+Topic: {script.topic}
+Needed Style: {needed_style.get('analysis', 'dynamic style')[:200]}
+Selected Reference: {best_ref_index}
+Match Confidence: {selected_ref.get('confidence', 'medium')}
+
+Use the selected canonical reference ({best_ref_index}) as the primary guide for character styling.
+Match the character appearance shown in this reference for consistency with the topic."""
+
+        full_prompt = style_guidance + full_prompt
 
         print("Calling OpenAI API for thumbnail generation...")
 
