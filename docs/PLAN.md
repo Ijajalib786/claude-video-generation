@@ -155,6 +155,7 @@ Phase 5: Production Polish
 - ✅ Dynamic validation with custom tolerance (±10% of target)
 - ✅ Metadata generation (word count, duration, statistics)
 - ✅ Quality validation against YouTube criteria
+- ✅ **2026-10-31:** Script prompt v2 (hook, key phrases, conversation parts, recap, shadowing, closing); level read from the context field (A1-A2, A2-B1, B1-B2 or B2-C1; default A2-B1)
 
 **How to run:**
 ```powershell
@@ -187,7 +188,8 @@ outputs/
 - YouTube SEO metadata generation (title, description, hashtags, tags)
 - Thumbnail text generation for YouTube overlays
 - Modern 2026 YouTube strategy implementation
-- Quality-over-word-count design (350-500 word descriptions)
+- Quality-over-word-count design (2026-10-31 update: title up to 70 characters in the format `[Topic] | Real English Conversation (level)`, 250-400 word description, 3-5 hashtags, 10-15 tags up to 500 characters in total, thumbnail text 2-4 words)
+- SEO checks in `src/models.py` are warnings only; SEO validation never stops a run (user reviews the output manually)
 - Sequential integration with Phase 1
 
 **Files:**
@@ -366,8 +368,8 @@ Phase 5: Video Assembly (PLANNED)
 
 | Component | Technology | Version |
 |-----------|-----------|---------|
-| Script Generation | Anthropic Claude API | Claude Sonnet 3.5+ |
-| SEO Metadata | Anthropic Claude API | Claude Sonnet 3.5+ |
+| Script Generation | Anthropic Claude API | `CLAUDE_MODEL` in `src/config.py` (currently claude-sonnet-5); `MAX_TOKENS` 8192 |
+| SEO Metadata | Anthropic Claude API | Same model and `MAX_TOKENS` as script generation |
 | Text-to-Speech | Google Generative AI | Gemini 3.8 Flash TTS |
 | Image Generation | OpenAI API | GPT-Image-2.5-Sunburst |
 | Data Validation | Pydantic | 2.0+ |
@@ -421,7 +423,7 @@ outputs/{topic}/
 - Topic input → Complete video assets output
 
 ✅ **Quality Standards**
-- Script: 1500-2000 words, beginner-friendly
+- Script: length set in the CLI (default range 1500-2000 words); level from the context (default A2-B1)
 - SEO: Keyword-optimized, CTR-focused
 - Audio: Multi-speaker, professional quality
 - Images: Professional, character-consistent
@@ -440,14 +442,46 @@ outputs/{topic}/
 
 ---
 
+## 🔧 REFINEMENTS - 2026-10-31
+
+Made with user approval. Originals are saved as `*.v1-backup` files next to each changed file. More detail is in the repo `CLAUDE.md` (sections 2b and 2c).
+
+**Changed:**
+- `references/prompts/Script Writer-prompt.txt`: rewritten; level is read from the context field (default A2-B1) instead of being fixed; example topic line removed; no stage directions (TTS reads the text aloud).
+- `references/examples/Script- Say No Politely.txt`: replaced by a short "Talk About Your Day" opening in the new one-line-per-turn format.
+- `references/prompts/Title and SEO- prompt.txt`: rewritten (JSON only; 3-5 hashtags; 10-15 tags; 250-400 word description; title up to 70 characters).
+- `src/models.py`: the five `SEOMetadata` checks now print warnings instead of raising errors.
+- `src/agents/seo_metadata_agent.py`: hard-coded SEO rules aligned with the new prompt (still JSON in, `seo_metadata.txt` out).
+- `src/config.py`: `MAX_TOKENS` 4096 -> 8192.
+
+**Not changed yet (pending user decisions):**
+- "Beginner-friendly" wording in `script_generation_agent.py` (lines 21, 93, 107); `TOPIC_QUALITY_CRITERIA` is intentionally left as it is.
+- Script parser drops lines without a "Sarah :" or "Alex :" prefix.
+- `Script` word-count check in `models.py` still raises an error.
+- `TEMPERATURE` is defined but not passed to the API.
+- Default level (A2-B1 or A1-A2).
+
+**Known issues found in review (not fixed):** captions in `video_assembly_agent.py` probably are not burned in (MoviePy 1.x calls with a 2.x import; confirm by opening a generated MP4); the audio spectrum function is a placeholder; subtitle timing is estimated from word counts.
+
+**Blockers:** None.
+
+**Next steps:**
+1. Run the full pipeline once (topic "Talk About Your Day", `Level: A2-B1` in the context) and review the script, SEO output and thumbnail.
+2. Open a generated MP4 and check the captions.
+3. Decide the pending items above.
+
+---
+
 ## 📝 Version History
 
+- **2026-10-31**: Script and SEO prompt v2, level taken from the context, SEO checks as warnings, `MAX_TOKENS` 8192 (see Refinements)
 - **2026-09-27**: Phase 4 completion (Image generation with improvements)
 - **2026-09-26**: Phase 3 completion (Text-to-speech with Google API)
 - **Previous**: Phase 1 & 2 completion
 
 ---
 
-**Last Updated:** 2026-09-27  
+**Last Updated:** 2026-10-31  
 **Status:** Phases 1-4 Complete, Awaiting Phase 4 Verification, Ready for Phase 5  
-**Next Session:** Manual verification of Phase 4, then Phase 5 planning
+**NOTE (2026-10-31):** the status line above and the Phase 5 "PLANNED" section were not updated. The repo `CLAUDE.md` lists Phases 5 (thumbnail text overlay) and 6 (video assembly) as complete and the code for both exists. Reconcile this tracker with the user.  
+**Next Session:** Full pipeline test with the new prompts, then the pending items in Refinements

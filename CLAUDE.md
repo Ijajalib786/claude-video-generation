@@ -36,6 +36,21 @@ Phase 6: ✅ COMPLETE & APPROVED (Video assembly with audio)
 
 **🎉 ALL PHASES COMPLETE!** Full end-to-end video generation pipeline is functional and ready for production use.
 
+### 2b. Changes made on 2026-10-31 (with user approval)
+Originals are saved next to each changed file as `*.v1-backup` (the script prompt also has `*.v2-backup`).
+- `references/prompts/Script Writer-prompt.txt`: rewritten (hook, key phrases, conversation parts, recap, shadowing, closing; one full spoken line per turn; no stage directions because TTS reads the text aloud). **Level is no longer fixed:** it is read from the context field (A1-A2, A2-B1, B1-B2 or B2-C1; default A2-B1), for example type `Level: A2-B1` in the context. The hard-coded example topic line was removed.
+- `references/examples/Script- Say No Politely.txt`: replaced by a short "Talk About Your Day" opening in the new format (the old example had lines without a speaker prefix, which the parser drops).
+- `references/prompts/Title and SEO- prompt.txt`: rewritten. JSON only; title `[Topic] | Real English Conversation (level)` up to 70 characters; 250-400 word description; 3-5 hashtags (YouTube ignores all hashtags above 15); 10-15 tags up to 500 characters in total; thumbnail text 2-4 words; nothing invented.
+- `src/models.py`: the five `SEOMetadata` checks no longer raise errors; they print warnings only. SEO output is reviewed manually. (The `Script` word-count check is unchanged and still raises.)
+- `src/agents/seo_metadata_agent.py`: hard-coded SEO rules (`SEO_STRATEGY`, JSON example, CRITICAL block, docstring) aligned with the new prompt. It still returns JSON and writes `seo_metadata.txt`.
+- `src/config.py`: `MAX_TOKENS` 4096 -> 8192.
+- **Not changed yet:** `TOPIC_QUALITY_CRITERIA` (user chose to leave it), the "beginner-friendly" wording in `script_generation_agent.py` (lines 21, 93, 107), the script parser, the `Script` word-count check, and `TEMPERATURE` (defined but not used).
+
+### 2c. Known issues found in review (not fixed)
+- `_parse_script` drops any line that does not start with "Sarah :" or "Alex :".
+- `video_assembly_agent.py`: captions use MoviePy 1.x calls with a MoviePy 2.x import, so captions are probably not burned into the video (open a generated MP4 to confirm). The audio spectrum function only returns a placeholder, and subtitle timing is estimated from word counts.
+- Nothing above has been run end to end yet; the next step is a full pipeline test (suggested topic "Talk About Your Day" with `Level: A2-B1` in the context).
+
 ### 3. Know Your Role
 - **Phase 1 (Testing):** Run scripts, verify output, get approval
 - **Phase 2+ (Implementation):** Only start if previous phase approved
@@ -195,6 +210,7 @@ python tests\test_phase_1.py
 - ✅ Customizable video length (8-20 minutes)
 - ✅ Automatic word count calculation (length × 130 words/min)
 - ✅ Sarah & Alex dialogue format with quality validation
+- ✅ Level read from the context field (default A2-B1) and section markers (`## SECTION: ...`) in the script (prompt v2, 2026-10-31)
 - ✅ Metadata generation (word count, duration, line count)
 
 **Current State:** Ready to generate videos
@@ -206,7 +222,8 @@ python tests\test_phase_1.py
 - ✅ YouTube SEO metadata generation (title, description, hashtags, tags)
 - ✅ Thumbnail text generation for overlays
 - ✅ Sequential integration with Phase 1
-- ✅ Quality-focused design (350-500 word descriptions)
+- ✅ Prompt v2 (2026-10-31): title up to 70 characters, 250-400 word description, 3-5 hashtags, 10-15 tags (500 characters or fewer), thumbnail text 2-4 words
+- ✅ Soft checks only: out-of-range values print warnings and never stop the run
 
 **Current State:** Automatically generates with Phase 1
 
@@ -276,9 +293,10 @@ $env:ANTHROPIC_API_KEY="sk-ant-..."
 ```
 
 ### Settings in `src/config.py`
-- Model: Claude Sonnet 3.5
-- Temperature: 0.7
-- Script length: 1500-2000 words
+- Model: `CLAUDE_MODEL` (currently `claude-sonnet-5`)
+- Temperature: `TEMPERATURE = 0.7` is defined but is NOT passed to the API calls, so the API default is used
+- Max tokens: `MAX_TOKENS = 8192` (raised from 4096 on 2026-10-31; used by the script and SEO calls)
+- Script length: default range 1500-2000 words (`SCRIPT_MIN_WORDS` / `SCRIPT_MAX_WORDS`); the CLI target is video length x 130 words/minute
 - Speech rate: 130 words/minute
 
 ---
@@ -351,6 +369,7 @@ pip install -r requirements.txt
 - ✅ Only work on the current phase
 - ✅ Test Phase 1 thoroughly before approval
 - ✅ Keep prompts in `references/prompts/`
+- ✅ Save a `.v1-backup` copy before editing a prompt, config or agent file
 - ✅ Generate outputs to `outputs/`
 
 ### DON'T:
@@ -604,9 +623,9 @@ Each phase teaches specific AI patterns:
 
 ## 📅 Version History
 
-**Last Updated:** 2024
-**Status:** Active - Phase 1 ready for testing
-**Next Review:** After Phase 1 approval
+**Last Updated:** 2026-10-31
+**Status:** Active - all 6 phases complete; script and SEO prompt, validation and config refinements applied (see 2b)
+**Next Review:** After a full pipeline test run with the new prompts
 
 ---
 
