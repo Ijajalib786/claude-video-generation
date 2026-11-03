@@ -18,7 +18,7 @@ Quality criteria the script must address:
 1. High YouTube search demand - Use popular keywords with sustained interest
 2. Evergreen search potential - Timeless content, remains relevant long-term
 3. Trending or seasonally relevant - Current/upcoming demand signals
-4. Beginner-friendly - Simple, relatable, easy to understand
+4. Level-appropriate - Matches the level given in the context (default A2-B1); relatable and easy to understand at that level
 5. Suitable for 10-15 min conversation - Natural pacing, not rushed
 6. Encourages watch-until-end - Narrative flow, story elements, practice
 7. Teaches everyday vocabulary - Practical, usable in real conversations
@@ -90,7 +90,7 @@ Guidelines:
   * Aim for the upper end of the range to maximize learning time
 - Begin with a hook (15-30 sec), channel intro, clear learning objectives
 - Teach the main content with examples, then practice, then CTA
-- Use simple, beginner-friendly English
+- Use clear, natural English at the level given in the context (default A2-B1)
 - Make it natural and conversational, not robotic
 - **IMPORTANT:** At this word count, you have room to be thorough - explain concepts fully, don't rush
 - Include pauses, reactions, humor, and small stories to keep it engaging
@@ -104,7 +104,7 @@ After generating the script, provide a JSON block with statistics like this:
     "has_hook": true,
     "has_channel_intro": true,
     "has_cta": true,
-    "is_beginner_friendly": true
+    "is_level_appropriate": true
   }}
 }}
 ```"""

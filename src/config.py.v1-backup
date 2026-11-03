@@ -1,0 +1,175 @@
+import os
+from pathlib import Path
+from dotenv import load_dotenv
+
+# Project root is one level up from src/
+PROJECT_ROOT = Path(__file__).parent.parent
+
+# Load environment variables from .env file (use string path, not Path object)
+env_file = str(PROJECT_ROOT / "config" / ".env")
+if os.path.exists(env_file):
+    load_dotenv(env_file, override=True, verbose=True)
+
+REFERENCES_DIR = PROJECT_ROOT / "references"
+OUTPUT_DIR = PROJECT_ROOT / "outputs"
+TEMP_DIR = PROJECT_ROOT / "temp"
+
+# Create directories if they don't exist
+OUTPUT_DIR.mkdir(exist_ok=True)
+TEMP_DIR.mkdir(exist_ok=True)
+
+# API Keys - try .env first, then environment variables, then empty string
+ANTHROPIC_API_KEY = os.getenv("ANTHROPIC_API_KEY", "").strip("'\"")
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY", "").strip("'\"")
+GOOGLE_CREDENTIALS = os.getenv("GOOGLE_APPLICATION_CREDENTIALS", "")
+GOOGLE_GEMINI_API_KEY = os.getenv("GOOGLE_GEMINI_API_KEY", "").strip("'\"")  # For Google Studio TTS
+
+# Paths
+PROMPTS_DIR = REFERENCES_DIR / "prompts"
+EXAMPLES_DIR = REFERENCES_DIR / "examples"
+IMAGES_DIR = REFERENCES_DIR / "images"
+
+SCRIPT_PROMPT_PATH = PROMPTS_DIR / "Script Writer-prompt.txt"
+SEO_PROMPT_PATH = PROMPTS_DIR / "Title and SEO- prompt.txt"
+THUMBNAIL_PROMPT_PATH = PROMPTS_DIR / "Thumbnail Image- Prompt.txt"
+VIDEO_PROMPT_PATH = PROMPTS_DIR / "Video Image- Prompt.txt"
+EXAMPLE_SCRIPT_PATH = EXAMPLES_DIR / "Script- Say No Politely.txt"
+
+# Canonical References (Phase 4: Image Generation)
+CANONICAL_REFERENCES = {
+    'thumbnail': [
+        IMAGES_DIR / "Thumbnail_character__style_canonical_ref-1.png",
+        IMAGES_DIR / "Thumbnail_character_style_canonical_ref-2.png"
+    ],
+    'video': [
+        IMAGES_DIR / "Video_character_style_canonical_ref_1.png",
+        IMAGES_DIR / "Video_character_style_canonical_ref_2.png"
+    ]
+}
+
+# Image generation settings
+IMAGE_GENERATION_MODEL = "gpt-image-2.5-sunburst"
+THUMBNAIL_SIZE = "1280x720"
+VIDEO_SCENE_SIZE = "1920x1088"  # Divisible by 16 for API requirements
+TEXT_POSITION_AUTO = "AUTO"  # Let API decide best text placement
+
+# Content specs
+SCRIPT_MIN_WORDS = 1500
+SCRIPT_MAX_WORDS = 2000
+TARGET_VIDEO_MINUTES = 12  # Average target for 10-15 min range
+WORDS_PER_MINUTE = 130     # Typical English speech rate for learners
+
+# Model settings
+CLAUDE_MODEL = "claude-sonnet-5"
+GPT_MODEL = "gpt-4o"
+TEMPERATURE = 0.7
+MAX_TOKENS = 4096
+
+# TTS Settings (Phase 3)
+TTS_MODEL = "gemini-3.8-flash-tts"
+TTS_VOICES = {
+    "Sarah": "Leda",    # Female voice (from official Google code)
+    "Alex": "Iapetus"      # Male voice (from official Google code)
+}
+TTS_AUDIO_FORMAT = "mp3"  # Output format
+TTS_SAMPLE_RATE = 24000  # Sample rate in Hz
+TTS_PARALLEL_THREADS = 2  # Number of parallel synthesis threads (Sarah + Alex)
+
+# Phase 5: Text Overlay Settings
+TEXT_OVERLAY_ENABLED = True
+TEXT_OVERLAY_MODEL = "gpt-image-2.5-sunburst"
+TEXT_OVERLAY_SIZE = "1280x720"  # Must match thumbnail size
+TEXT_OVERLAY_QUALITY = "high"
+
+# Prompt context for Phase 5 - helps AI make intelligent decisions
+TEXT_OVERLAY_CONTEXT = """
+Channel: SPEAK ENGLISH SMARTER (English learning)
+Viewer Context: YouTube mobile feed (375px width)
+
+PRIORITY ORDER:
+1. ANALYZE IMAGE: Identify character positions and available spaces
+2. EYE-CATCHING: Make text grab attention using available space
+3. READABLE: Must be legible on small mobile screens (375px)
+4. PROFESSIONAL: Match brand aesthetic (not garish)
+5. SAFE: Avoid YouTube UI elements (~30px margin from edges)
+
+Strategy: Let the IMAGE COMPOSITION guide text placement.
+Each thumbnail has different character positions.
+Find the best empty space for this specific image.
+"""
+
+MOBILE_VIEWPORT_WIDTH = 375  # Reference width for mobile readability
+YOUTUBE_EDGE_MARGIN = 30     # Pixels from edges to avoid YouTube UI
+
+# Phase 5: Text Overlay - Professional Styling (ENHANCED)
+TEXT_OVERLAY_FONTS = {
+    "bold_sans_serif": {
+        "names": ["Arial Black", "Impact", "Helvetica Bold", "sans-serif"],
+        "size_base": 48,
+        "weight": "bold",
+        "scenarios": ["professional_office", "formal"]
+    },
+    "bold_rounded_sans": {
+        "names": ["Verdana Bold", "Tahoma Bold", "sans-serif"],
+        "size_base": 44,
+        "weight": "bold",
+        "scenarios": ["casual", "friendly", "social"]
+    },
+    "bold_serif": {
+        "names": ["Georgia Bold", "Times New Roman Bold", "serif"],
+        "size_base": 42,
+        "weight": "bold",
+        "scenarios": ["premium", "elegant", "professional"]
+    }
+}
+
+TEXT_OVERLAY_EFFECTS = {
+    "drop_shadow": {
+        "enabled": True,
+        "offset": (2, 2),
+        "blur": 2,
+        "opacity": 0.4,
+        "color": (0, 0, 0)  # Black shadow
+    },
+    "text_outline": {
+        "enabled": True,
+        "width": 1,
+        "color": (0, 0, 0)  # Black outline for contrast
+    }
+}
+
+TEXT_OVERLAY_COLOR_SETTINGS = {
+    "contrast_ratio_min": 4.5,  # WCAG AA standard
+    "dynamic_color": True,  # Analyze image for complementary colors
+    "fallback_color": (255, 255, 255),  # White fallback
+    "text_color_options": [
+        (255, 255, 255),  # White
+        (255, 255, 0),    # Yellow (high contrast)
+        (0, 255, 255),    # Cyan (high contrast)
+        (255, 165, 0),    # Orange (high contrast on dark)
+    ]
+}
+
+# Phase 6: Video Assembly Settings
+VIDEO_ASSEMBLY_ENABLED = True
+VIDEO_OUTPUT_RESOLUTION = (1920, 1080)  # 16:9 aspect ratio
+VIDEO_OUTPUT_FPS = 24
+VIDEO_OUTPUT_CODEC = "libx264"
+VIDEO_AUDIO_CODEC = "aac"
+
+# Caption Settings (Semi-Transparent Background Box)
+CAPTION_FONT_SIZE = 20
+CAPTION_FONT_COLOR = (255, 255, 255)  # White text
+CAPTION_BG_COLOR = (0, 0, 0)  # Black background
+CAPTION_BG_OPACITY = 0.75  # 75% opaque (25% transparent)
+CAPTION_POSITION = "bottom"  # bottom-center
+CAPTION_PADDING = 10  # pixels around text
+
+# Spectrum Visualization Settings (Waveform Animation)
+SPECTRUM_HEIGHT = 80  # pixels
+SPECTRUM_WIDTH = 1920  # pixels (full width)
+SPECTRUM_POSITION = "top"  # top-center
+SPECTRUM_COLOR = "#00FFFF"  # Cyan (bright accent)
+
+# Logging
+LOG_LEVEL = os.getenv("LOG_LEVEL", "INFO")

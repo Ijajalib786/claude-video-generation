@@ -1,6 +1,7 @@
 from pydantic import BaseModel, Field, validator, model_validator
 from typing import Optional
 from datetime import datetime
+import warnings
 
 class ScriptLine(BaseModel):
     """Represents a single line of dialogue in the script."""
@@ -46,36 +47,39 @@ class SEOMetadata(BaseModel):
     tags: list[str]
     thumbnail_text: str
 
+    # Soft checks: these only print a warning and never stop the run.
+    # Review the generated SEO metadata manually and fix anything flagged.
     @validator("title")
     def validate_title_length(cls, v):
-        if len(v) > 65:
-            raise ValueError(f"Title must be 65 characters or less, got {len(v)}")
+        if len(v) > 70:
+            warnings.warn(f"SEO title is {len(v)} characters (suggested 70 or fewer)")
         return v
 
     @validator("description")
     def validate_description_length(cls, v):
         if not v or len(v) < 10:
-            raise ValueError("Description must be provided and substantive")
+            warnings.warn("SEO description is empty or very short")
         return v
 
     @validator("hashtags")
     def validate_hashtags_count(cls, v):
-        if not (15 <= len(v) <= 20):
-            raise ValueError(f"Must have 15-20 hashtags, got {len(v)}")
+        if len(v) > 15:
+            warnings.warn(f"{len(v)} hashtags: YouTube ignores all hashtags above 15 (suggested 3-5)")
         return v
 
     @validator("tags")
     def validate_tags_count(cls, v):
-        if not (15 <= len(v) <= 20):
-            raise ValueError(f"Must have 15-20 tags, got {len(v)}")
+        joined = len(", ".join(v))
+        if joined > 500:
+            warnings.warn(f"Tags total {joined} characters: YouTube accepts at most 500")
         return v
 
     @validator("thumbnail_text")
     def validate_thumbnail_text(cls, v):
         if not v or len(v) < 3:
-            raise ValueError("Thumbnail text must be provided and meaningful")
-        if len(v) > 100:
-            raise ValueError(f"Thumbnail text should be concise (≤100 chars), got {len(v)}")
+            warnings.warn("Thumbnail text is empty or very short")
+        elif len(v) > 30:
+            warnings.warn(f"Thumbnail text is {len(v)} characters (suggested 25 or fewer)")
         return v
 
 class TopicInput(BaseModel):

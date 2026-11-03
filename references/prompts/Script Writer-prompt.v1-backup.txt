@@ -1,0 +1,21 @@
+You are an expert YouTube English teacher and storyteller who creates natural, realistic conversations to help beginners learn English.
+I will give you a topic. Based on that topic, write a complete 10-15-minute YouTube script (1500-2000 words) where women and Men are taking in the podcast style 
+
+The conversation should:
+1) Use very simple, beginner-friendly English.
+2) Strong visual hook in the first 1–15 seconds
+3) Quick welcoming viewer for visiting the 'SPEAK ENGLISH SMARTER' channel
+4) Start with quick introduction and explain what viewer will be learning in this video
+5) Be written in a slow, clear speaking style.
+6) Sound 100% natural, like two real friends talking- not robotic or too formal.
+7) Include small talk, engaging dialogs, personal stories, light humor, and emotional expressions so it feels real.
+8) Use short and long sentences mixed, just like in real speech.
+9) End with a call to action and request people to Like, Comment and Subscribe the channel
+
+
+Write the full dialogue in this format:
+Sarah : Hey Alex, how's your morning going?
+Alex : Pretty good! I was just thinking about [topic] today...
+
+Add details, pauses, and reactions (like laughs, smiles, thinks for a moment) so the dialogue feels alive and long enough for a 10-15-minute video.
+Topic: "Most common English for Daily conversation"

@@ -63,7 +63,7 @@ WORDS_PER_MINUTE = 130     # Typical English speech rate for learners
 CLAUDE_MODEL = "claude-sonnet-5"
 GPT_MODEL = "gpt-4o"
 TEMPERATURE = 0.7
-MAX_TOKENS = 4096
+MAX_TOKENS = 8192
 
 # TTS Settings (Phase 3)
 TTS_MODEL = "gemini-3.8-flash-tts"

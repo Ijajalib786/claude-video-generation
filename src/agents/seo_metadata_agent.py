@@ -13,43 +13,13 @@ from ..models import SEOMetadata, Script, TopicInput
 client = Anthropic()
 
 SEO_STRATEGY = """
-YOUTUBE SEO STRATEGY (2026) - MAXIMUM VIEWS FOCUS
-
-1. TITLE OPTIMIZATION (≤65 chars):
-   - Format: [Verb/Question] + [Benefit] + [Specificity]
-   - Include long-tail keyword (topic-specific)
-   - Balance searchability with clickability
-   - Example: "How to Apologize Politely in English | Learn Natural Phrases"
-
-2. DESCRIPTION OPTIMIZATION (350+ words):
-   - Hook (first 150 chars): Most important keywords, compelling
-   - Body: Explain what viewers will learn, educational value
-   - Keywords: Sprinkle naturally (3-5 main keywords)
-   - Calls-to-action: "Like", "Subscribe", "Comment"
-   - Related: Suggest related topics
-   - Timestamps: Major sections if applicable
-   - Minimum: 350 words (aim for 350-500)
-
-3. HASHTAGS (15-20 total):
-   - 40% High-volume (#learnEnglish, #englishconversation)
-   - 40% Medium-volume niche (#englishphrases, #conversationalenglish)
-   - 20% Long-tail specific (#howtoapologizepolitely)
-   - Avoid: Hashtags with <10K views
-   - Priority: Relevance over viral potential
-
-4. TAGS (15-20 total):
-   - Main: Topic keyword phrase
-   - Related: Broader learning categories
-   - Specific: Long-tail variations
-   - Trending: Current English learning trends (conversational English, practical English)
-   - Brand: "SPEAK ENGLISH SMARTER"
-
-5. THUMBNAIL TEXT (1 line, compelling):
-   - Verb + Benefit OR Curiosity gap
-   - ALL CAPS or Key words capitalized
-   - Examples: "SAY NO POLITELY", "APOLOGIZE LIKE A NATIVE", "PERFECT APOLOGY?"
-   - Urgent, action-oriented tone
-   - Max 100 characters
+YOUTUBE SEO NOTES (the SEO PROMPT GUIDE below has the exact formats and limits)
+- Search intent first: put the main topic keyword at the start of the title and in the first sentence of the description.
+- Viewers see only the first 100-150 characters of the description before "more", so make them count.
+- Hashtags: 3-5 relevant ones, most relevant first. YouTube ignores all hashtags on a video that has more than 15. Put the 3 main hashtags on the last line of the description.
+- Tags: 10-15 keywords; all tags joined with ", " must stay under 500 characters.
+- Thumbnail text: 2-4 words, ALL CAPS, short enough to read on a phone.
+- Use only details that are in the script and context. Never invent them.
 """
 
 def load_seo_prompt():
@@ -68,11 +38,11 @@ def generate_seo_metadata(script: Script, topic_input: TopicInput) -> SEOMetadat
 
     Returns:
         SEOMetadata object with:
-        - title: Optimized, 65 chars max
-        - description: Keyword-rich, 500+ words
-        - hashtags: 15-20 trending/relevant hashtags
-        - tags: 15-20 SEO tags
-        - thumbnail_text: Single compelling text overlay
+        - title: Optimized, 70 chars or fewer
+        - description: Keyword-rich, 250-400 words
+        - hashtags: 3-5 relevant hashtags
+        - tags: 10-15 SEO tags (500 characters or fewer in total)
+        - thumbnail_text: 2-4 word text overlay
     """
 
     seo_prompt = load_seo_prompt()
@@ -80,7 +50,7 @@ def generate_seo_metadata(script: Script, topic_input: TopicInput) -> SEOMetadat
     system_message = f"""You are a YouTube SEO expert optimizing titles, descriptions, hashtags, tags, and thumbnail text
 for an English learning channel (SPEAK ENGLISH SMARTER).
 
-GOAL: Maximize search traffic and views through trend-based optimization for 2026.
+GOAL: Help the right English learners find and click this video, using the keywords they actually search for.
 
 {SEO_STRATEGY}
 
@@ -92,25 +62,24 @@ Estimated Duration: {script.estimated_duration_minutes:.1f} minutes
 SEO PROMPT GUIDE:
 {seo_prompt}
 
-Generate SEO metadata that will attract maximum views while maintaining YouTube algorithm best practices.
-Focus on trending keywords in the English learning space (conversational English, practical communication, real-world scenarios).
+Follow the SEO PROMPT GUIDE above for formats and limits. Use only what is in the script and context.
 
 Your output MUST be valid JSON with this exact structure:
 {{
-  "title": "exact title (max 65 chars)",
-  "description": "full description (350+ words)",
-  "hashtags": ["#hashtag1", "#hashtag2", ... 20 items total],
-  "tags": ["tag1", "tag2", ... 20 items total],
-  "thumbnail_text": "COMPELLING TEXT FOR THUMBNAIL"
+  "title": "exact title (70 characters or fewer)",
+  "description": "full description (250-400 words)",
+  "hashtags": ["#hashtag1", "#hashtag2", "#hashtag3"],
+  "tags": ["tag1", "tag2", ... 10 to 15 items],
+  "thumbnail_text": "2-4 WORDS"
 }}
 
 CRITICAL:
-- Title must be ≤65 characters
-- Description must be 350+ words (aim for 350-500)
-- Hashtags must be exactly 15-20 items
-- Tags must be exactly 15-20 items
-- Thumbnail text must be 3-100 characters
-- JSON must be properly formatted"""
+- Title must be 70 characters or fewer
+- Description must be 250-400 words
+- Hashtags must be 3 to 5 items
+- Tags must be 10 to 15 items, and all tags joined with ", " must be 500 characters or fewer
+- Thumbnail text must be 2 to 4 words (25 characters or fewer)
+- JSON must be properly formatted (write line breaks inside the description as \\n)"""
 
     messages = [
         {
