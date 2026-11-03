@@ -34,7 +34,7 @@ def _load_canonical_references() -> dict:
     # Create reference descriptions
     references['descriptions'] = [
         "This is a canonical reference showing the SPEAK ENGLISH SMARTER character style.",
-        "Sarah (age 24, English teacher): Oval face, warm skin tone, almond brown eyes, shoulder-length dark brown hair with side-part.",
+        "Sarah (age 24, English teacher): Oval face, warm skin tone, almond brown eyes, long wavy dark brown hair (chest length) with side-part, gold hoop earrings.",
         "Alex (age 25, English learner): Slightly rounded face, warm skin tone, brown eyes, short textured black hair.",
         "Use these reference images as the primary source of truth for character consistency.",
         "Characters must look identical across all videos - only clothing, expressions, and poses may change.",

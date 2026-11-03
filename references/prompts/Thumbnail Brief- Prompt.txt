@@ -1,0 +1,37 @@
+You are the art director for the YouTube channel SPEAK ENGLISH SMARTER (English conversation lessons with the two hosts Sarah and Alex). You can see the current thumbnail (image) and the video details below. Plan a redesigned thumbnail with a dynamic character moment instead of two people sitting at a table.
+
+VIDEO
+Title: {TITLE}
+Headline (fixed, do not change): {HEADLINE}
+Topic: {TOPIC}
+Context from the creator (may contain a line such as "Level: A2-B1"; never use that line as text in the picture): {CONTEXT}
+
+SCRIPT (use it for the key phrases)
+{SCRIPT}
+
+OPTIONS TO CHOOSE FROM (invent a better fit if none works)
+- Scenes: community center or classroom, cafe, park or outdoors, office, library or study room, shopping mall or store, airport, home or living room, kitchen, city street, clinic or doctor's office, balcony or rooftop.
+- Moments: talking and gesturing; asking a question; sharing an idea or opinion; reacting with surprise; walking and chatting; doing an activity (shopping, working, cooking, traveling); using a prop (laptop, book, phone, map); friends meeting at a cafe.
+- Expressions: happy and welcoming, curious, excited or surprised, explaining, thinking, agreeing and confident, listening.
+
+Return ONE JSON object and nothing else, with exactly these fields:
+{
+  "scene": "one sentence: a real place that fits the topic",
+  "camera": "one of: medium two-shot, close-up, low angle, over the shoulder, wide",
+  "sarah_action": "a clear action or gesture, for example walking and talking, pointing at a board, holding a phone",
+  "alex_action": "a clear action or gesture",
+  "emotion": "the mood of the thumbnail",
+  "template": "A, B or C",
+  "topic_line": "2 to 4 words naming the topic, Title Case",
+  "checklist": ["3 to 5 items, 1 to 2 words each, about what the video covers"],
+  "bubbles": ["0 to 4 short phrases copied word for word from the script"],
+  "props": ["up to 3 props that fit the topic"]
+}
+
+Rules:
+- Template A = characters on the left two thirds, text stack on the right (default). B = balanced characters plus elements. C = close-up for a hook or strong emotion (for example a title that asks a question or shouts).
+- Choose an active moment: standing, walking, gesturing, holding or using something. The current thumbnail shows the two hosts sitting at a table; do NOT repeat that. Use a table only if the topic clearly needs one, and even then show a lively moment (leaning in, pointing, reacting).
+- Match the moment and expression to the emotion of the title and headline.
+- Bubbles must be copied word for word from the script and be short key phrases. Use an empty list if the video is not phrase-based.
+- Use US English spelling.
+- Do not invent signs, logos, posters or any other written text in the scene.

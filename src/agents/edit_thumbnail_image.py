@@ -12,7 +12,7 @@ from PIL import Image
 import json
 import base64
 from .. import config
-from ..models import SEOMetadata, ImageMetadata
+from ..models import Script, SEOMetadata, ImageMetadata
 
 
 def _build_color_analysis_prompt(thumbnail_text: str, topic: Optional[str] = None) -> str:
@@ -141,12 +141,200 @@ def _get_color_suggestions(
     return text_color, text_position, text_style
 
 
+# ---------------------------------------------------------------------------
+# Redesign pass (brief-driven). Used instead of the plain text overlay when
+# config.THUMBNAIL_REDESIGN_ENABLED is True. Never raises: on any problem the
+# caller falls back to the plain text overlay below.
+# ---------------------------------------------------------------------------
+
+def _default_brief(seo_metadata: SEOMetadata, topic: Optional[str]) -> Dict:
+    """Safe brief used when the brief step fails."""
+    return {
+        "scene": "a bright, natural setting that fits the topic",
+        "camera": "medium two-shot",
+        "sarah_action": "talking and gesturing with an open hand",
+        "alex_action": "listening with a friendly smile",
+        "emotion": "warm and friendly",
+        "template": "A",
+        "topic_line": (topic or seo_metadata.title)[:40],
+        "checklist": [],
+        "bubbles": [],
+        "props": [],
+    }
+
+
+def _clean_brief(raw, default: Dict) -> Dict:
+    """Keep only valid values from the model's JSON; fill the rest from the default."""
+    brief = dict(default)
+    if not isinstance(raw, dict):
+        return brief
+    for key in ("scene", "camera", "sarah_action", "alex_action", "emotion", "topic_line"):
+        value = raw.get(key)
+        if isinstance(value, str) and value.strip():
+            brief[key] = value.strip()
+    template = str(raw.get("template", "A")).strip().upper()
+    brief["template"] = template if template in config.THUMBNAIL_TEMPLATES else "A"
+    for key, max_items, max_len in (("checklist", 5, 24), ("bubbles", 4, 40), ("props", 3, 30)):
+        items = raw.get(key)
+        if isinstance(items, list):
+            cleaned = [str(x).strip() for x in items if str(x).strip() and len(str(x).strip()) <= max_len]
+            brief[key] = cleaned[:max_items]
+    return brief
+
+
+def _get_redesign_brief(
+    thumbnail_path: Path,
+    seo_metadata: SEOMetadata,
+    topic: Optional[str],
+    context: Optional[str],
+    script: Optional[Script],
+) -> Dict:
+    """Ask Claude (with the base thumbnail and the script) for a redesign brief."""
+    default = _default_brief(seo_metadata, topic)
+    try:
+        from anthropic import Anthropic
+
+        template = config.THUMBNAIL_BRIEF_PROMPT_PATH.read_text(encoding="utf-8")
+        script_text = ""
+        if script is not None:
+            script_text = "\n".join(f"{line.speaker} : {line.content}" for line in script.lines)
+
+        user_text = (
+            template.replace("{TITLE}", seo_metadata.title)
+            .replace("{HEADLINE}", seo_metadata.thumbnail_text)
+            .replace("{TOPIC}", topic or seo_metadata.title)
+            .replace("{CONTEXT}", context or "None")
+            .replace("{SCRIPT}", script_text or "(not available)")
+        )
+
+        with open(thumbnail_path, "rb") as img_file:
+            img_b64 = base64.b64encode(img_file.read()).decode()
+
+        client = Anthropic(api_key=config.ANTHROPIC_API_KEY) if config.ANTHROPIC_API_KEY else Anthropic()
+        response = client.messages.create(
+            model=config.CLAUDE_MODEL,
+            max_tokens=1200,
+            messages=[{
+                "role": "user",
+                "content": [
+                    {"type": "image", "source": {"type": "base64", "media_type": "image/png", "data": img_b64}},
+                    {"type": "text", "text": user_text},
+                ],
+            }],
+        )
+        text = next((b.text for b in response.content if hasattr(b, "text")), "")
+        start, end = text.find("{"), text.rfind("}") + 1
+        raw = json.loads(text[start:end]) if start >= 0 and end > start else None
+        return _clean_brief(raw, default)
+    except Exception as e:
+        print(f"[WARN] Redesign brief failed, using the default brief: {e}")
+        return default
+
+
+def _build_redesign_prompt(seo_metadata: SEOMetadata, brief: Dict) -> str:
+    """Fill the redesign prompt template with the brief and the exact text to draw."""
+    template = config.THUMBNAIL_REDESIGN_PROMPT_PATH.read_text(encoding="utf-8")
+    checklist = "\n".join(f'  - "{item}"' for item in brief["checklist"]) or "  (none)"
+    bubbles = "\n".join(f'  - "{item}"' for item in brief["bubbles"]) or "  (none)"
+    props = ", ".join(brief["props"]) or "only what the scene needs"
+    values = {
+        "{SCENE}": brief["scene"],
+        "{CAMERA}": brief["camera"],
+        "{SARAH_ACTION}": brief["sarah_action"],
+        "{ALEX_ACTION}": brief["alex_action"],
+        "{EMOTION}": brief["emotion"],
+        "{PROPS}": props,
+        "{LAYOUT}": config.THUMBNAIL_TEMPLATES[brief["template"]],
+        "{HEADLINE}": seo_metadata.thumbnail_text,
+        "{TOPIC_LINE}": brief["topic_line"],
+        "{TAG}": config.THUMBNAIL_TAG_TEXT,
+        "{CHECKLIST}": checklist,
+        "{BUBBLES}": bubbles,
+    }
+    prompt = template
+    for placeholder, value in values.items():
+        prompt = prompt.replace(placeholder, value)
+    return prompt
+
+
+def _save_edit_response(edit_response, target: Path) -> bool:
+    """Save an images.edit response (b64 or url) to target. Returns True on success."""
+    if not edit_response.data:
+        return False
+    image_data = edit_response.data[0]
+    if hasattr(image_data, "b64_json") and image_data.b64_json:
+        target.write_bytes(base64.b64decode(image_data.b64_json))
+        return True
+    if hasattr(image_data, "url") and image_data.url:
+        import urllib.request
+        urllib.request.urlretrieve(image_data.url, str(target))
+        return True
+    return False
+
+
+def _redesign_thumbnail(
+    thumbnail_path: Path,
+    seo_metadata: SEOMetadata,
+    output_folder: Path,
+    topic: Optional[str],
+    context: Optional[str],
+    script: Optional[Script],
+) -> Optional[ImageMetadata]:
+    """Brief step + redesign edit. Returns None on any failure (caller falls back)."""
+    try:
+        print(f"[BRIEF] Planning the redesign (scene, poses, text) ...")
+        brief = _get_redesign_brief(thumbnail_path, seo_metadata, topic, context, script)
+        output_folder.mkdir(parents=True, exist_ok=True)
+        (output_folder / "thumbnail_brief.json").write_text(json.dumps(brief, indent=2), encoding="utf-8")
+        print(f"[BRIEF] Scene: {brief['scene']} | Template {brief['template']}")
+
+        prompt = _build_redesign_prompt(seo_metadata, brief)
+        client = OpenAI(api_key=config.OPENAI_API_KEY)
+
+        saved = []
+        for n in range(1, config.THUMBNAIL_REDESIGN_VARIANTS + 1):
+            print(f"[RENDER] Redesign pass {n}/{config.THUMBNAIL_REDESIGN_VARIANTS} ...")
+            files = [open(thumbnail_path, "rb")]
+            files += [open(p, "rb") for p in config.THUMBNAIL_IDENTITY_REFS if Path(p).exists()]
+            try:
+                edit_response = client.images.edit(
+                    image=files[0] if len(files) == 1 else files,
+                    prompt=prompt,
+                    model=config.TEXT_OVERLAY_MODEL,
+                    size=config.TEXT_OVERLAY_SIZE,
+                    n=1,
+                    quality=config.TEXT_OVERLAY_QUALITY,
+                )
+            finally:
+                for f in files:
+                    f.close()
+            target = output_folder / ("thumbnail_with_text.png" if n == 1 else f"thumbnail_with_text_v{n}.png")
+            if _save_edit_response(edit_response, target):
+                saved.append(target)
+                print(f"[SAVE] {target.name} ({target.stat().st_size / 1024:.1f} KB)")
+
+        if not saved:
+            return None
+        return ImageMetadata(
+            topic=seo_metadata.title,
+            image_type="thumbnail_with_text",
+            file_path=str(saved[0]),
+            resolution=config.TEXT_OVERLAY_SIZE,
+            generation_model=config.TEXT_OVERLAY_MODEL,
+            prompt_used="Thumbnail Redesign- Prompt.txt + brief"
+        )
+    except Exception as e:
+        print(f"[WARN] Redesign pass failed: {e}")
+        return None
+
+
 def edit_thumbnail_image(
     thumbnail_path: Path,
     seo_metadata: SEOMetadata,
     output_folder: Path,
     topic: Optional[str] = None,
-    context: Optional[str] = None
+    context: Optional[str] = None,
+    script: Optional[Script] = None
 ) -> Optional[ImageMetadata]:
     """
     Add professional, dynamic text overlay to thumbnail.
@@ -187,6 +375,14 @@ def edit_thumbnail_image(
             return None
 
         print(f"[TEXT] Adding text: '{thumbnail_text}'")
+
+        # Redesign pass (brief-driven); falls back to the plain text overlay below if it fails
+        if config.THUMBNAIL_REDESIGN_ENABLED:
+            redesigned = _redesign_thumbnail(thumbnail_path, seo_metadata, output_folder, topic, context, script)
+            if redesigned:
+                print(f"\n[DONE] Thumbnail redesign completed successfully")
+                return redesigned
+            print(f"[WARN] Redesign unavailable, falling back to the plain text overlay")
 
         # Step 1: Local color analysis
         print(f"\n[ANALYSIS] Analyzing image colors locally...")

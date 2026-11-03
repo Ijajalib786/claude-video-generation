@@ -36,7 +36,7 @@ Phase 6: ✅ COMPLETE & APPROVED (Video assembly with audio)
 
 **🎉 ALL PHASES COMPLETE!** Full end-to-end video generation pipeline is functional and ready for production use.
 
-### 2b. Changes made on 2026-10-31 (with user approval)
+### 2b. Changes made on 2026-10-31 and 2026-11-02 (with user approval)
 Originals are saved next to each changed file as `*.v1-backup` (the script prompt also has `*.v2-backup`).
 - `references/prompts/Script Writer-prompt.txt`: rewritten (hook, key phrases, conversation parts, recap, shadowing, closing; one full spoken line per turn; no stage directions because TTS reads the text aloud). **Level is no longer fixed:** it is read from the context field (A1-A2, A2-B1, B1-B2 or B2-C1; default A2-B1), for example type `Level: A2-B1` in the context. The hard-coded example topic line was removed.
 - `references/examples/Script- Say No Politely.txt`: replaced by a short "Talk About Your Day" opening in the new format (the old example had lines without a speaker prefix, which the parser drops).
@@ -44,12 +44,19 @@ Originals are saved next to each changed file as `*.v1-backup` (the script promp
 - `src/models.py`: the five `SEOMetadata` checks no longer raise errors; they print warnings only. SEO output is reviewed manually. (The `Script` word-count check is unchanged and still raises.)
 - `src/agents/seo_metadata_agent.py`: hard-coded SEO rules (`SEO_STRATEGY`, JSON example, CRITICAL block, docstring) aligned with the new prompt. It still returns JSON and writes `seo_metadata.txt`.
 - `src/config.py`: `MAX_TOKENS` 4096 -> 8192.
+- `src/agents/edit_thumbnail_image.py` (Phase 5): new redesign pass in front of the text overlay. A brief step (Claude, with the base thumbnail, title, thumbnail text, context and script) picks the scene, camera, what Sarah and Alex are doing, a layout template (A, B or C), a topic line, 3-5 checklist items and 0-4 speech-bubble phrases copied from the script, and saves `thumbnail_brief.json`. Then `images.edit` redraws the thumbnail from the base image with a redesign prompt that fixes identity and the exact text and asks for an active moment instead of two people sitting at a table. Same number of image calls as before. If the brief step fails a default brief is used; if the redesign fails the old overlay code runs; `THUMBNAIL_REDESIGN_ENABLED = False` restores the old behaviour. `edit_thumbnail_image()` has a new `script` parameter.
+- `references/prompts/Thumbnail Brief- Prompt.txt` and `references/prompts/Thumbnail Redesign- Prompt.txt`: new prompt files for the two steps above. The redesign prompt draws the headline, a topic banner, a checklist note and speech bubbles. It does NOT draw the channel name or badge or a "Real English Conversation" tag (user decision 2026-11-03, to keep extra text off the thumbnail); `THUMBNAIL_TAG_TEXT` in `config.py` is now unused.
+- `src/config.py`: new `THUMBNAIL_REDESIGN_ENABLED`, `THUMBNAIL_REDESIGN_VARIANTS` (1), `THUMBNAIL_IDENTITY_REFS` (empty), `THUMBNAIL_TAG_TEXT`, `THUMBNAIL_TEMPLATES` and the two prompt paths. Backup of the version before this change: `config.py.v2-backup`.
+- `scripts/cli.py`: passes `script=script` to `edit_thumbnail_image(...)`.
+- `src/agents/thumbnail_image_agent.py` and `references/prompts/Thumbnail Image- Prompt.txt`: Sarah is now long wavy dark brown hair (chest length) with gold hoop earrings (user decision 2026-11-02, matching the new canonical sheets). The video scene prompt and agent were not changed.
 - **Not changed yet:** `TOPIC_QUALITY_CRITERIA` (user chose to leave it), the "beginner-friendly" wording in `script_generation_agent.py` (lines 21, 93, 107), the script parser, the `Script` word-count check, and `TEMPERATURE` (defined but not used).
 
 ### 2c. Known issues found in review (not fixed)
 - `_parse_script` drops any line that does not start with "Sarah :" or "Alex :".
 - `video_assembly_agent.py`: captions use MoviePy 1.x calls with a MoviePy 2.x import, so captions are probably not burned into the video (open a generated MP4 to confirm). The audio spectrum function only returns a placeholder, and subtitle timing is estimated from word counts.
-- Nothing above has been run end to end yet; the next step is a full pipeline test (suggested topic "Talk About Your Day" with `Level: A2-B1` in the context).
+- The script and SEO prompts have been run end to end once (2026-10-31, video 1) and worked. The Phase 5 redesign pass ran for real on video 1 on 2026-11-03: the brief step worked (`claude-sonnet-5` accepted the image), the canon (long wavy hair, gold hoops) appeared, and the user approved the result. The scene in the brief follows the setting written in the context ("kitchen"), so a table scene stays a table scene unless the context says otherwise.
+- Phase 4 still generates a seated base image; the redesign pass is what changes the scene. If the redesign output is still static, change Phase 4 next.
+- The video scene (Phase 6 input) still uses the older character look (its prompt and canonical video references were not changed).
 
 ### 3. Know Your Role
 - **Phase 1 (Testing):** Run scripts, verify output, get approval
@@ -264,6 +271,7 @@ python tests\test_phase_1.py
 - ✅ Eye-catching text styling for YouTube feed
 - ✅ Mobile-optimized readability (375px viewport)
 - ✅ Separate output file: thumbnail_with_text.png
+- ✅ 2026-11-02: brief-driven redesign pass (see 2b); falls back to the plain text overlay if it fails
 
 **Current State:** Generates thumbnail with text overlay
 

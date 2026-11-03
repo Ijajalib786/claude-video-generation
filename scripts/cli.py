@@ -298,7 +298,8 @@ def main(topic, context, output):
                     seo_metadata,
                     output_folder,
                     topic=topic,
-                    context=context
+                    context=context,
+                    script=script
                 )
 
                 if edited_thumbnail_metadata:

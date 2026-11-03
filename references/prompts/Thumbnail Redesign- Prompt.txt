@@ -1,0 +1,36 @@
+Redesign this YouTube thumbnail for the channel SPEAK ENGLISH SMARTER so that it looks more professional and dynamic, like a frame from the video.
+
+KEEP IDENTICAL
+- Exactly two characters: Sarah and Alex, the same hosts as in the image provided. Keep their faces, skin tone, age and illustration style the same.
+- Sarah always has long wavy dark brown hair (chest length) and gold hoop earrings. If the image shows shorter hair or no earrings, draw the long hair and the earrings.
+- Alex always has short textured black hair and is clean-shaven.
+
+YOU MAY CHANGE
+- The setting, camera angle, poses and actions, props and clothing. Keep clothing in the same colour family (Sarah: pink or cream tones; Alex: blue tones) and suited to the scene.
+- Do not keep the pose of the provided image if the scene below asks for something more active.
+
+SCENE
+{SCENE}
+Camera: {CAMERA}
+Sarah: {SARAH_ACTION}
+Alex: {ALEX_ACTION}
+Mood: {EMOTION}
+Props: {PROPS}
+
+LAYOUT
+{LAYOUT}
+
+TEXT
+Draw exactly these strings, spelled exactly as written. Do not draw any other readable text anywhere.
+- Headline (largest, bold, high contrast, brush-stroke or banner style): "{HEADLINE}"
+- Topic banner: "{TOPIC_LINE}"
+- Checklist note (small, handwritten style):
+{CHECKLIST}
+- Speech bubbles with these phrases (short and clean):
+{BUBBLES}
+
+STYLE
+- Premium flat cartoon illustration, bright, warm and vivid but clean; high contrast; soft depth; a few yellow motion lines near the faces for energy.
+- The headline must stay readable at 375 pixels wide; the checklist and bubbles are supporting details.
+- 16:9, 1280x720, keep 30 pixels clear of the edges.
+- No extra characters, no watermark, no channel name, no logo or badge, and no signs or posters with words.

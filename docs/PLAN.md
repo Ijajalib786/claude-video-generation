@@ -442,7 +442,7 @@ outputs/{topic}/
 
 ---
 
-## 🔧 REFINEMENTS - 2026-10-31
+## 🔧 REFINEMENTS - 2026-10-31 (updated 2026-11-02)
 
 Made with user approval. Originals are saved as `*.v1-backup` files next to each changed file. More detail is in the repo `CLAUDE.md` (sections 2b and 2c).
 
@@ -453,6 +453,11 @@ Made with user approval. Originals are saved as `*.v1-backup` files next to each
 - `src/models.py`: the five `SEOMetadata` checks now print warnings instead of raising errors.
 - `src/agents/seo_metadata_agent.py`: hard-coded SEO rules aligned with the new prompt (still JSON in, `seo_metadata.txt` out).
 - `src/config.py`: `MAX_TOKENS` 4096 -> 8192.
+- `src/agents/edit_thumbnail_image.py` (Phase 5): new redesign pass in front of the text overlay. A brief step (Claude, with the base thumbnail, title, thumbnail text, context and script) picks the scene, camera, what Sarah and Alex are doing, a layout template (A, B or C), a topic line, 3-5 checklist items and 0-4 speech-bubble phrases copied from the script, and saves `thumbnail_brief.json`. Then `images.edit` redraws the thumbnail from the base image with a redesign prompt that fixes identity and the exact text and asks for an active moment instead of two people sitting at a table. Same number of image calls as before. If the brief step fails a default brief is used; if the redesign fails the old overlay code runs; `THUMBNAIL_REDESIGN_ENABLED = False` restores the old behaviour. `edit_thumbnail_image()` has a new `script` parameter.
+- `references/prompts/Thumbnail Brief- Prompt.txt` and `references/prompts/Thumbnail Redesign- Prompt.txt`: new prompt files for the two steps above.
+- `src/config.py`: new `THUMBNAIL_REDESIGN_ENABLED`, `THUMBNAIL_REDESIGN_VARIANTS` (1), `THUMBNAIL_IDENTITY_REFS` (empty), `THUMBNAIL_TAG_TEXT`, `THUMBNAIL_TEMPLATES` and the two prompt paths. Backup of the version before this change: `config.py.v2-backup`.
+- `scripts/cli.py`: passes `script=script` to `edit_thumbnail_image(...)`.
+- `src/agents/thumbnail_image_agent.py` and `references/prompts/Thumbnail Image- Prompt.txt`: Sarah is now long wavy dark brown hair (chest length) with gold hoop earrings (user decision 2026-11-02, matching the new canonical sheets). The video scene prompt and agent were not changed.
 
 **Not changed yet (pending user decisions):**
 - "Beginner-friendly" wording in `script_generation_agent.py` (lines 21, 93, 107); `TOPIC_QUALITY_CRITERIA` is intentionally left as it is.
@@ -469,6 +474,7 @@ Made with user approval. Originals are saved as `*.v1-backup` files next to each
 1. Run the full pipeline once (topic "Talk About Your Day", `Level: A2-B1` in the context) and review the script, SEO output and thumbnail.
 2. Open a generated MP4 and check the captions.
 3. Decide the pending items above.
+4. Phase 5 redesign pass: first real run on video 1 worked on 2026-11-03 (brief step OK, result approved by the user). At the user's request the channel badge and the "Real English Conversation" tag are no longer drawn. Next: run Studio's test and compare against the old thumbnail.
 
 ---
 

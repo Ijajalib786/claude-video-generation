@@ -150,6 +150,19 @@ TEXT_OVERLAY_COLOR_SETTINGS = {
     ]
 }
 
+# Phase 5: Thumbnail redesign pass (brief-driven). If it fails, the plain text overlay above is used.
+THUMBNAIL_REDESIGN_ENABLED = True
+THUMBNAIL_BRIEF_PROMPT_PATH = PROMPTS_DIR / "Thumbnail Brief- Prompt.txt"
+THUMBNAIL_REDESIGN_PROMPT_PATH = PROMPTS_DIR / "Thumbnail Redesign- Prompt.txt"
+THUMBNAIL_REDESIGN_VARIANTS = 1      # 1 = same number of image calls as before; 2-3 saves extra versions (_v2, _v3)
+THUMBNAIL_IDENTITY_REFS = []         # optional clean character crops, e.g. [IMAGES_DIR / "identity_default.png"]; leave empty if the image model accepts only one input image
+THUMBNAIL_TAG_TEXT = "Real English Conversation"
+THUMBNAIL_TEMPLATES = {
+    "A": "Template A (default): the characters fill the left 60% of the frame at a large size with clearly visible faces; the text stack (headline, topic banner, tag pill) sits in the right 40%; the checklist note sits at the bottom right.",
+    "B": "Template B: the characters sit center-left at a medium size with the headline above them; supporting elements (checklist, speech bubbles, props) are arranged around them.",
+    "C": "Template C: a tight close-up of both faces with strong emotion fills most of the frame; the headline overlaps the top or one side without covering the faces.",
+}
+
 # Phase 6: Video Assembly Settings
 VIDEO_ASSEMBLY_ENABLED = True
 VIDEO_OUTPUT_RESOLUTION = (1920, 1080)  # 16:9 aspect ratio
