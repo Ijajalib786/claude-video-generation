@@ -69,7 +69,7 @@ MAX_TOKENS = 8192
 TTS_MODEL = "gemini-3.8-flash-tts"
 TTS_VOICES = {
     "Sarah": "Leda",    # Female voice (from official Google code)
-    "Alex": "Iapetus"      # Male voice (from official Google code)
+    "Alex": "Enceladus"      # Male voice (from official Google code) Iapetus,Orus
 }
 TTS_AUDIO_FORMAT = "mp3"  # Output format
 TTS_SAMPLE_RATE = 24000  # Sample rate in Hz
